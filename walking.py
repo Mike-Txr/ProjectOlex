@@ -13,6 +13,7 @@ SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
 SCREEN_TITLE = "Starting Template"
 
+#testtest
 
 class MyGame(arcade.Window):
     """
