@@ -1,7 +1,7 @@
 import arcade
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+SCREEN_WIDTH = 1920
+SCREEN_HEIGHT = 1080
 SCREEN_TITLE = "ProjectOlex"
 
 class MyGame(arcade.Window):
@@ -13,10 +13,21 @@ class MyGame(arcade.Window):
 
         # If you have sprite lists, you should create them here,
         # and set them to None
+        self.all_sprites = arcade.SpriteList()
+        self.player_sprite = None
+
+        self.window_width, self.window_height = self.get_size()
 
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
+
+        self.player_sprite = arcade.Sprite("assets/player.png", scale = 3)
+        self.player_sprite.center_x = self.window_width // 2
+        self.player_sprite.center_y = self.window_height // 2
+        self.all_sprites.append(self.player_sprite)
+
+
         pass
 
     def on_draw(self):
@@ -29,6 +40,7 @@ class MyGame(arcade.Window):
         self.clear()
 
         # Call draw() on all your sprite lists below
+        self.all_sprites.draw()
 
     def on_update(self, delta_time):
         """
