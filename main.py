@@ -11,14 +11,14 @@ class MyGame(arcade.Window):
 
         # If you have sprite lists, you should create them here,
         # and set them to None
-        self.all_sprites = arcade.SpriteList()
-        self.player_sprite = None
+        self.all_sprites = None
 
         self.window_width, self.window_height = self.get_size()
 
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
+        self.all_sprites = arcade.SpriteList()
 
         self.player = player.Player(self.window_width // 2, self.window_height // 2)
         self.all_sprites.append(self.player)
