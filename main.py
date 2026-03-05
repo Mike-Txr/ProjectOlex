@@ -1,6 +1,9 @@
 import arcade
+
 import settings
 import player
+from misc_func import realpix
+import misc_func
 
 class MyGame(arcade.Window):
 
@@ -14,13 +17,19 @@ class MyGame(arcade.Window):
         self.all_sprites = None
 
         self.window_width, self.window_height = self.get_size()
+        #x_scale und y_scale sind bei 16:9 Monitoren identisch
+        self.x_scale = self.window_width / settings.INGAME_WIDTH
+        self.y_scale = self.window_height / settings.INGAME_HEIGHT
+        self.either_scale = min(self.x_scale, self.y_scale)
+        print(self.window_width)
+        print(self.window_height)
 
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
         self.all_sprites = arcade.SpriteList()
 
-        self.player = player.Player(self.window_width // 2, self.window_height // 2)
+        self.player = player.Player(160*self.x_scale, 90*self.y_scale, self.either_scale)
         self.all_sprites.append(self.player)
 
 
@@ -82,7 +91,7 @@ class MyGame(arcade.Window):
 
 def main():
     """ Main function """
-    game = MyGame(settings.SCREEN_WIDTH, settings.SCREEN_HEIGHT, settings.SCREEN_TITLE)
+    game = MyGame(1920, 1080, settings.SCREEN_TITLE)
     game.setup()
     arcade.run()
 
