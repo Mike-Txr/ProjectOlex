@@ -1,8 +1,14 @@
 import arcade
 
+<<<<<<< HEAD
 import settings
 import player
 import pause_screen
+=======
+import functions.settings as settings
+import functions.player as player
+import functions.player_movement as playmov
+>>>>>>> a59a8ef97d1b51efe458fcb43db1cb8fbf92d89b
 
 class MyGame(arcade.Window):
 
@@ -32,8 +38,8 @@ class MyGame(arcade.Window):
         self.all_sprites = arcade.SpriteList()
 
         self.player = player.Player(
-            160*self.x_scale,
-            90*self.y_scale,
+            settings.INGAME_WIDTH*0.5*self.x_scale,
+            settings.INGAME_HEIGHT*0.5*self.y_scale,
             self.either_scale)
         self.all_sprites.append(self.player)
 
@@ -59,28 +65,56 @@ class MyGame(arcade.Window):
         Normally, you'll call update() on the sprite lists that
         need it.
         """
+<<<<<<< HEAD
         if self.paused:
             return
         
+=======
+
+        directions = playmov.calc_movement(self.player)
+        self.player.center_x += directions["x"] * self.x_scale
+        self.player.center_y += directions["y"] * self.y_scale
+        self.all_sprites.update()
+
+
+>>>>>>> a59a8ef97d1b51efe458fcb43db1cb8fbf92d89b
         pass
 
     def on_key_press(self, key, key_modifiers):
         """
         Called whenever a key on the keyboard is pressed.
-
-        For a full list of keys, see:
-        https://api.arcade.academy/en/latest/arcade.key.html
         """
 
+<<<<<<< HEAD
         # Check if the user hit the Esc key and toggle paused state
         if key == arcade.key.ESCAPE:
             self.paused = not self.paused
         pass
+=======
+        if key == arcade.key.W:
+            playmov.key_press("W")
+        if key == arcade.key.S:
+            playmov.key_press("S")
+        if key == arcade.key.A:
+            playmov.key_press("A")
+        if key == arcade.key.D:
+            playmov.key_press("D")
+        
+>>>>>>> a59a8ef97d1b51efe458fcb43db1cb8fbf92d89b
 
     def on_key_release(self, key, key_modifiers):
         """
         Called whenever the user lets off a previously pressed key.
         """
+
+        if key == arcade.key.W:
+            playmov.key_release("W")
+        if key == arcade.key.S:
+            playmov.key_release("S")
+        if key == arcade.key.A:
+            playmov.key_release("A")
+        if key == arcade.key.D:
+            playmov.key_release("D")
         pass
 
     def on_mouse_motion(self, x, y, delta_x, delta_y):

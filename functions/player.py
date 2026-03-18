@@ -1,5 +1,5 @@
 import arcade
-import settings
+import functions.settings as settings
 
 class Player(arcade.Sprite):
     def __init__(self, x, y, scale):
