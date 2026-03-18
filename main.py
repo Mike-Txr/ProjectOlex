@@ -29,8 +29,8 @@ class MyGame(arcade.Window):
         self.all_sprites = arcade.SpriteList()
 
         self.player = player.Player(
-            160*self.x_scale,
-            90*self.y_scale,
+            settings.INGAME_WIDTH*0.5*self.x_scale,
+            settings.INGAME_HEIGHT*0.5*self.y_scale,
             self.either_scale)
         self.all_sprites.append(self.player)
 
