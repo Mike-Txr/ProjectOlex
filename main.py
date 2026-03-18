@@ -2,6 +2,7 @@ import arcade
 
 import settings
 import player
+import pause_screen
 
 class MyGame(arcade.Window):
 
@@ -9,6 +10,8 @@ class MyGame(arcade.Window):
         super().__init__(width, height, title, fullscreen=True)
 
         arcade.set_background_color(arcade.color.AMAZON)
+
+        self.paused = False # Variable to hold paused state. Set to True to pause the game, False to unpause.
 
         # If you have sprite lists, you should create them here,
         # and set them to None
@@ -41,7 +44,6 @@ class MyGame(arcade.Window):
         """
         Render the screen.
         """
-
         # This command should happen before we start drawing. It will clear
         # the screen to the background color, and erase what we drew last frame.
         self.clear()
@@ -49,12 +51,17 @@ class MyGame(arcade.Window):
         # Call draw() on all your sprite lists below
         self.all_sprites.draw(pixelated=True)
 
+        pause_screen.on_draw(self) # call the on_draw function from pause_screen.py
+
     def on_update(self, delta_time):
         """
         All the logic to move, and the game logic goes here.
         Normally, you'll call update() on the sprite lists that
         need it.
         """
+        if self.paused:
+            return
+        
         pass
 
     def on_key_press(self, key, key_modifiers):
@@ -64,6 +71,10 @@ class MyGame(arcade.Window):
         For a full list of keys, see:
         https://api.arcade.academy/en/latest/arcade.key.html
         """
+
+        # Check if the user hit the Esc key and toggle paused state
+        if key == arcade.key.ESCAPE:
+            self.paused = not self.paused
         pass
 
     def on_key_release(self, key, key_modifiers):
