@@ -2,8 +2,6 @@ import arcade
 
 import settings
 import player
-from misc_func import realpix
-import misc_func
 
 class MyGame(arcade.Window):
 
