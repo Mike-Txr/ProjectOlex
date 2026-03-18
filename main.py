@@ -19,6 +19,7 @@ class MyGame(arcade.Window):
         self.x_scale = self.window_width / settings.INGAME_WIDTH
         self.y_scale = self.window_height / settings.INGAME_HEIGHT
         self.either_scale = min(self.x_scale, self.y_scale)
+        print(self.either_scale)
         print(self.window_width)
         print(self.window_height)
 
@@ -27,7 +28,10 @@ class MyGame(arcade.Window):
         # Create your sprites and sprite lists here
         self.all_sprites = arcade.SpriteList()
 
-        self.player = player.Player(160*self.x_scale, 90*self.y_scale, self.either_scale)
+        self.player = player.Player(
+            160*self.x_scale,
+            90*self.y_scale,
+            self.either_scale)
         self.all_sprites.append(self.player)
 
 
