@@ -2,6 +2,7 @@ import arcade
 
 import functions.settings as settings
 import functions.player as player
+import functions.player_movement as playmov
 
 class MyGame(arcade.Window):
 
@@ -55,21 +56,43 @@ class MyGame(arcade.Window):
         Normally, you'll call update() on the sprite lists that
         need it.
         """
+
+        directions = playmov.calc_movement(self.player)
+        self.player.center_x += directions["x"] * self.x_scale
+        self.player.center_y += directions["y"] * self.y_scale
+        self.all_sprites.update()
+
+
         pass
 
     def on_key_press(self, key, key_modifiers):
         """
         Called whenever a key on the keyboard is pressed.
-
-        For a full list of keys, see:
-        https://api.arcade.academy/en/latest/arcade.key.html
         """
-        pass
+
+        if key == arcade.key.W:
+            playmov.key_press("W")
+        if key == arcade.key.S:
+            playmov.key_press("S")
+        if key == arcade.key.A:
+            playmov.key_press("A")
+        if key == arcade.key.D:
+            playmov.key_press("D")
+        
 
     def on_key_release(self, key, key_modifiers):
         """
         Called whenever the user lets off a previously pressed key.
         """
+
+        if key == arcade.key.W:
+            playmov.key_release("W")
+        if key == arcade.key.S:
+            playmov.key_release("S")
+        if key == arcade.key.A:
+            playmov.key_release("A")
+        if key == arcade.key.D:
+            playmov.key_release("D")
         pass
 
     def on_mouse_motion(self, x, y, delta_x, delta_y):
