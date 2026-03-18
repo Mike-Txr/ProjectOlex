@@ -1,7 +1,7 @@
 import arcade
 
-import settings
-import player
+import functions.settings as settings
+import functions.player as player
 
 class MyGame(arcade.Window):
 
