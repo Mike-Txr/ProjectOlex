@@ -3,7 +3,8 @@ import arcade
 import functions.settings as settings
 import functions.player as player
 import functions.player_movement as playmov
-import pause_screen
+import functions.pause_screen as pause_screen
+import functions.key_handler as key_handler
 
 class MyGame(arcade.Window):
 
@@ -77,18 +78,12 @@ class MyGame(arcade.Window):
         Called whenever a key on the keyboard is pressed.
         """
 
+        key_handler.key_press(key)
+
         # Check if the user hit the Esc key and toggle paused state
         if key == arcade.key.ESCAPE:
             self.paused = not self.paused
-        pass
-        if key == arcade.key.W:
-            playmov.key_press("W")
-        if key == arcade.key.S:
-            playmov.key_press("S")
-        if key == arcade.key.A:
-            playmov.key_press("A")
-        if key == arcade.key.D:
-            playmov.key_press("D")
+
         
 
     def on_key_release(self, key, key_modifiers):
@@ -96,15 +91,8 @@ class MyGame(arcade.Window):
         Called whenever the user lets off a previously pressed key.
         """
 
-        if key == arcade.key.W:
-            playmov.key_release("W")
-        if key == arcade.key.S:
-            playmov.key_release("S")
-        if key == arcade.key.A:
-            playmov.key_release("A")
-        if key == arcade.key.D:
-            playmov.key_release("D")
-        pass
+        key_handler.key_release(key)
+
 
     def on_mouse_motion(self, x, y, delta_x, delta_y):
         """

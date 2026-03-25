@@ -1,25 +1,17 @@
 import arcade
 import functions.settings as settings
+import functions.key_handler as kh
 
-current_pressed = []
 directions = {"x":0, "y":0}
 
-def key_press(key):
-    current_pressed.append(key)
-
-def key_release(key):
-    try:
-        current_pressed.remove(key)
-    except:
-        pass
 
 def calc_movement(player):
-    up = "W" in current_pressed
-    down = "S" in current_pressed
+    up = arcade.key.W in kh.current_pressed
+    down = arcade.key.S in kh.current_pressed
     directions["y"] = up - down
 
-    left = "A" in current_pressed
-    right = "D" in current_pressed
+    left = arcade.key.A in kh.current_pressed
+    right = arcade.key.D in kh.current_pressed
     directions["x"] = right - left
 
     return directions
