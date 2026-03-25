@@ -38,6 +38,10 @@ class MyGame(arcade.Window):
             self.either_scale)
         self.all_sprites.append(self.player)
 
+        #load the pause screen (so it will load faster when needed)
+        self.paused = True
+        pause_screen.on_draw(self)
+        self.paused = False
 
         pass
 
@@ -116,6 +120,30 @@ class MyGame(arcade.Window):
         """
         Called when the user presses a mouse button.
         """
+        
+        #---buttons for the pause menu---
+        if self.paused:
+            #continue button
+            if (
+                self.window_width/2 - 100 < x < self.window_width/2 + 100
+                and self.position_continue - 20 < y < self.position_continue + 20
+            ):
+                self.paused = False
+            
+            #restart button (not finished)######################################################################################
+            if (
+                self.window_width/2 - 100 < x < self.window_width/2 + 100
+                and self.position_restart - 20 < y < self.position_restart + 20
+            ):
+                self.paused = False #needs to be changed when the restart function is implemented
+
+            #quit button
+            if (
+                self.window_width/2 - 100 < x < self.window_width/2 + 100
+                and self.position_quit - 20 < y < self.position_quit + 20
+            ):
+                arcade.exit()
+
         pass
 
     def on_mouse_release(self, x, y, button, key_modifiers):
