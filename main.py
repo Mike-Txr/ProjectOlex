@@ -1,14 +1,9 @@
 import arcade
 
-<<<<<<< HEAD
-import settings
-import player
-import pause_screen
-=======
 import functions.settings as settings
 import functions.player as player
 import functions.player_movement as playmov
->>>>>>> a59a8ef97d1b51efe458fcb43db1cb8fbf92d89b
+import pause_screen
 
 class MyGame(arcade.Window):
 
@@ -65,11 +60,9 @@ class MyGame(arcade.Window):
         Normally, you'll call update() on the sprite lists that
         need it.
         """
-<<<<<<< HEAD
         if self.paused:
             return
         
-=======
 
         directions = playmov.calc_movement(self.player)
         self.player.center_x += directions["x"] * self.x_scale
@@ -77,7 +70,6 @@ class MyGame(arcade.Window):
         self.all_sprites.update()
 
 
->>>>>>> a59a8ef97d1b51efe458fcb43db1cb8fbf92d89b
         pass
 
     def on_key_press(self, key, key_modifiers):
@@ -85,12 +77,10 @@ class MyGame(arcade.Window):
         Called whenever a key on the keyboard is pressed.
         """
 
-<<<<<<< HEAD
         # Check if the user hit the Esc key and toggle paused state
         if key == arcade.key.ESCAPE:
             self.paused = not self.paused
         pass
-=======
         if key == arcade.key.W:
             playmov.key_press("W")
         if key == arcade.key.S:
@@ -100,7 +90,6 @@ class MyGame(arcade.Window):
         if key == arcade.key.D:
             playmov.key_press("D")
         
->>>>>>> a59a8ef97d1b51efe458fcb43db1cb8fbf92d89b
 
     def on_key_release(self, key, key_modifiers):
         """
