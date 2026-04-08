@@ -5,6 +5,7 @@ import functions.player as player
 import functions.player_movement as playmov
 import functions.pause_screen as pause_screen
 import functions.key_handler as key_handler
+import functions.obstacles as obstacles
 
 class MyGame(arcade.Window):
 
@@ -19,6 +20,7 @@ class MyGame(arcade.Window):
         # and set them to None
         self.all_sprites = None
 
+
         self.window_width, self.window_height = self.get_size()
         #x_scale und y_scale sind bei 16:9 Monitoren identisch
         self.x_scale = self.window_width / settings.INGAME_WIDTH
@@ -31,13 +33,25 @@ class MyGame(arcade.Window):
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
+
         self.all_sprites = arcade.SpriteList()
+        self.obstacles = arcade.SpriteList()
 
         self.player = player.Player(
             settings.INGAME_WIDTH*0.5*self.x_scale,
             settings.INGAME_HEIGHT*0.5*self.y_scale,
             self.either_scale)
         self.all_sprites.append(self.player)
+
+
+        self.obstacle = obstacles.Obstacle(
+            330*self.x_scale,
+            180*self.y_scale,
+            self.either_scale)
+        self.obstacles.append(self.obstacle)
+        self.all_sprites.append(self.obstacle)
+
+        self.physics_engine = arcade.PhysicsEngineSimple(self.player, self.obstacles)
 
 
         pass
@@ -66,12 +80,13 @@ class MyGame(arcade.Window):
         
 
         directions = playmov.calc_movement(self.player)
-        self.player.center_x += directions["x"] * self.x_scale
-        self.player.center_y += directions["y"] * self.y_scale
+        directions["x"] *= self.x_scale
+        directions["y"] *= self.y_scale
+        playmov.move_player(self.player, directions)
         self.all_sprites.update()
 
 
-        pass
+        self.physics_engine.update()
 
     def on_key_press(self, key, key_modifiers):
         """

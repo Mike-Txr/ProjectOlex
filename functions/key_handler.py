@@ -1,4 +1,4 @@
-
+import functions.settings as settings
 
 current_pressed = []
 

@@ -1,6 +1,7 @@
 import arcade
 import functions.settings as settings
 import functions.key_handler as kh
+import functions.player as player
 
 directions = {"x":0, "y":0}
 
@@ -15,4 +16,8 @@ def calc_movement(player):
     directions["x"] = right - left
 
     return directions
-    
+
+def move_player(player, directions):
+    player.change_x = directions["x"]
+    player.change_y = directions["y"]
+    pass
