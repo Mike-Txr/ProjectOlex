@@ -12,7 +12,7 @@ class MyGame(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title, fullscreen=True)
 
-        arcade.set_background_color(arcade.color.AMAZON)
+        #arcade.set_background_color(arcade.color.AMAZON)
 
         self.paused = False # Variable to hold paused state. Set to True to pause the game, False to unpause.
 
@@ -35,7 +35,12 @@ class MyGame(arcade.Window):
         # Create your sprites and sprite lists here
 
         self.all_sprites = arcade.SpriteList()
-        self.obstacles = arcade.SpriteList()
+
+        self.tile_map = arcade.load_tilemap("assets/TestMap.tmx", scaling=self.either_scale)
+        self.ground_list = self.tile_map.sprite_lists["Grass"]
+        self.obstacle_list = self.tile_map.sprite_lists["Obstacles"]
+        self.all_sprites.extend(self.ground_list)
+        self.all_sprites.extend(self.obstacle_list)
 
         self.player = player.Player(
             settings.INGAME_WIDTH*0.5*self.x_scale,
@@ -48,14 +53,16 @@ class MyGame(arcade.Window):
         pause_screen.on_draw(self)
         self.paused = False
 
+        """
         self.obstacle = obstacles.Obstacle(
             330*self.x_scale,
             180*self.y_scale,
             self.either_scale)
         self.obstacles.append(self.obstacle)
         self.all_sprites.append(self.obstacle)
+        """
 
-        self.physics_engine = arcade.PhysicsEngineSimple(self.player, self.obstacles)
+        self.physics_engine = arcade.PhysicsEngineSimple(self.player, self.obstacle_list)
 
 
         pass
