@@ -1,9 +1,12 @@
 import arcade
+import arcade.gui
 
 import functions.settings as settings
 import functions.player as player
 import functions.player_movement as playmov
 import functions.pause_screen as pause_screen
+import functions.game_over as game_over
+import functions.menu as menu
 import functions.key_handler as key_handler
 import functions.obstacles as obstacles
 
@@ -13,8 +16,6 @@ class MyGame(arcade.Window):
         super().__init__(width, height, title, fullscreen=True)
 
         #arcade.set_background_color(arcade.color.AMAZON)
-
-        self.paused = False # Variable to hold paused state. Set to True to pause the game, False to unpause.
 
         # If you have sprite lists, you should create them here,
         # and set them to None
@@ -29,6 +30,19 @@ class MyGame(arcade.Window):
         print(self.either_scale)
         print(self.window_width)
         print(self.window_height)
+
+        ##Menu##
+        self.menu = True#Variable for menu (True because the game starts with the menu)
+        self.menu_screen = menu.Menu(self)#class for the menu, which is defined in functions/menu.py
+
+        ##Pause menu##
+        self.paused = False # Variable to hold paused state. Set to True to pause the game, False to unpause.
+        self.pause_screen = pause_screen.PauseScreen(self)#class for the pause menu, which is defined in functions/pause_screen.py
+        
+        ##Game over##
+        self.game_over = False # Variable to hold game over state. Set to True to trigger the game over screen, False to disable it.
+        self.game_over_screen = game_over.GameOver(self)#class for the game over screen, which is defined in functions/game_over.py
+        
 
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
@@ -47,11 +61,7 @@ class MyGame(arcade.Window):
             settings.INGAME_HEIGHT*0.5*self.y_scale,
             self.either_scale)
         self.all_sprites.append(self.player)
-
-        #load the pause screen (so it will load faster when needed)
-        self.paused = True
-        pause_screen.on_draw(self)
-        self.paused = False
+        
 
         """
         self.obstacle = obstacles.Obstacle(
@@ -64,6 +74,8 @@ class MyGame(arcade.Window):
 
         self.physics_engine = arcade.PhysicsEngineSimple(self.player, self.obstacle_list)
 
+
+        
 
         pass
 
@@ -78,7 +90,15 @@ class MyGame(arcade.Window):
         # Call draw() on all your sprite lists below
         self.all_sprites.draw(pixelated=True)
 
-        pause_screen.on_draw(self) # call the on_draw function from pause_screen.py
+        if self.menu:#if the menu variable is true, draw the menu screen
+            self.menu_screen.draw() # call the on_draw function from menu.py
+
+        if self.paused:#if the game is paused, draw the pause screen
+            self.pause_screen.draw() # call the on_draw function from pause_screen.py
+        
+        if self.game_over:#if the game is over, draw the game over screen#############################Game over trigger --> game_over = True
+            self.game_over_screen.draw() # call the on_draw function from game_over.py
+
 
     def on_update(self, delta_time):
         """
@@ -86,9 +106,28 @@ class MyGame(arcade.Window):
         Normally, you'll call update() on the sprite lists that
         need it.
         """
-        if self.paused:
-            return
-        
+
+        ###menu###
+        if self.menu:#if the menu variable is true, enable the menu screen and skip the rest of the update function
+            self.menu_screen.enable()
+            return # Skip the rest of the update function if the menu is active
+        else:
+            self.game_over_screen.disable()#Disable the game over screen when the game is not over
+
+        ###game over screen###
+        if self.game_over:#if the game is over, enable the game over screen and skip the rest of the update function
+            self.game_over_screen.enable()
+            return # Skip the rest of the update function if the game is over
+        else:
+            self.game_over_screen.disable()#Disable the game over screen when the game is not over
+
+        ###pause screen###
+        if self.paused:#if the game is paused, enable the pause screen and skip the rest of the update function
+            self.pause_screen.enable()
+            return # Skip the rest of the update function if the game is paused
+        else:
+            self.pause_screen.disable()#Disable the pause screen when the game is not paused
+
 
         directions = playmov.calc_movement(self.player)
         directions["x"] *= self.x_scale
@@ -107,9 +146,12 @@ class MyGame(arcade.Window):
         key_handler.key_press(key)
 
         # Check if the user hit the Esc key and toggle paused state
-        if key == arcade.key.ESCAPE:
+        if key == arcade.key.ESCAPE and not self.game_over: #only allow pausing if the game is not over
             self.paused = not self.paused
 
+
+        if key == arcade.key.SPACE:###############################only for debugging, will be removed later, triggers the game over screen when space is pressed
+            self.game_over = not self.game_over
         
 
     def on_key_release(self, key, key_modifiers):
@@ -131,29 +173,6 @@ class MyGame(arcade.Window):
         Called when the user presses a mouse button.
         """
         
-        #---buttons for the pause menu---
-        if self.paused:
-            #continue button
-            if (
-                self.window_width/2 - 100 < x < self.window_width/2 + 100
-                and self.position_continue - 20 < y < self.position_continue + 20
-            ):
-                self.paused = False
-            
-            #restart button (not finished)######################################################################################
-            if (
-                self.window_width/2 - 100 < x < self.window_width/2 + 100
-                and self.position_restart - 20 < y < self.position_restart + 20
-            ):
-                self.paused = False #needs to be changed when the restart function is implemented
-
-            #quit button
-            if (
-                self.window_width/2 - 100 < x < self.window_width/2 + 100
-                and self.position_quit - 20 < y < self.position_quit + 20
-            ):
-                arcade.exit()
-
         pass
 
     def on_mouse_release(self, x, y, button, key_modifiers):
