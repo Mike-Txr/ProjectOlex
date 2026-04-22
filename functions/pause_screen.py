@@ -3,7 +3,7 @@ import arcade
 def on_draw(self):
     self.clear()
 
-    self.all_sprites.draw(pixelated=True)
+    self.scene.draw(pixelated=True)
     
     self.position_continue = self.window_height / 2
     self.position_restart = self.window_height / 2 - 50

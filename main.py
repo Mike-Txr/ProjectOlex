@@ -6,6 +6,7 @@ import functions.player_movement as playmov
 import functions.pause_screen as pause_screen
 import functions.key_handler as key_handler
 import functions.obstacles as obstacles
+import functions.screen_logic as screen_logic
 
 class MyGame(arcade.Window):
 
@@ -16,53 +17,38 @@ class MyGame(arcade.Window):
 
         self.paused = False # Variable to hold paused state. Set to True to pause the game, False to unpause.
 
-        # If you have sprite lists, you should create them here,
-        # and set them to None
-        self.all_sprites = None
-
+        self.scene = None
 
         self.window_width, self.window_height = self.get_size()
         #x_scale und y_scale sind bei 16:9 Monitoren identisch
         self.x_scale = self.window_width / settings.INGAME_WIDTH
         self.y_scale = self.window_height / settings.INGAME_HEIGHT
         self.either_scale = min(self.x_scale, self.y_scale)
-        print(self.either_scale)
-        print(self.window_width)
-        print(self.window_height)
 
     def setup(self):
         """ Set up the game variables. Call to re-start the game. """
         # Create your sprites and sprite lists here
 
-        self.all_sprites = arcade.SpriteList()
 
+        #Load the tilemap (created with Tiled)
         self.tile_map = arcade.load_tilemap("assets/TestMap.tmx", scaling=self.either_scale)
-        self.ground_list = self.tile_map.sprite_lists["Grass"]
-        self.obstacle_list = self.tile_map.sprite_lists["Obstacles"]
-        self.all_sprites.extend(self.ground_list)
-        self.all_sprites.extend(self.obstacle_list)
+        self.scene = arcade.Scene.from_tilemap(self.tile_map)
+        self.edge_list = self.tile_map.object_lists["Trigger"] #invisible elements to change map
 
+        #Create a player object based on the player class from the player file
         self.player = player.Player(
             settings.INGAME_WIDTH*0.5*self.x_scale,
             settings.INGAME_HEIGHT*0.5*self.y_scale,
             self.either_scale)
-        self.all_sprites.append(self.player)
+        self.scene.add_sprite("Player", self.player)
 
         #load the pause screen (so it will load faster when needed)
         self.paused = True
         pause_screen.on_draw(self)
         self.paused = False
 
-        """
-        self.obstacle = obstacles.Obstacle(
-            330*self.x_scale,
-            180*self.y_scale,
-            self.either_scale)
-        self.obstacles.append(self.obstacle)
-        self.all_sprites.append(self.obstacle)
-        """
-
-        self.physics_engine = arcade.PhysicsEngineSimple(self.player, self.obstacle_list)
+        #loads the simple physics engine 
+        self.physics_engine = arcade.PhysicsEngineSimple(self.player, self.scene["Obstacles"])
 
 
         pass
@@ -76,7 +62,7 @@ class MyGame(arcade.Window):
         self.clear()
 
         # Call draw() on all your sprite lists below
-        self.all_sprites.draw(pixelated=True)
+        self.scene.draw(pixelated=True)
 
         pause_screen.on_draw(self) # call the on_draw function from pause_screen.py
 
@@ -94,10 +80,19 @@ class MyGame(arcade.Window):
         directions["x"] *= self.x_scale
         directions["y"] *= self.y_scale
         playmov.move_player(self.player, directions)
-        self.all_sprites.update()
 
+        collision = screen_logic.check_collisions(self.player, self.edge_list)
+        if collision:
+            self.tile_map = arcade.load_tilemap("assets/"+collision.properties["next_map"],
+                                                scaling=self.either_scale)
+            self.scene = arcade.Scene.from_tilemap(self.tile_map)
+            self.scene.add_sprite("Player", self.player)
+            self.edge_list = self.tile_map.object_lists["Trigger"]
+            self.physics_engine = arcade.PhysicsEngineSimple(self.player, self.scene["Obstacles"])
+            self.player = screen_logic.correct_player_pos(self.player, collision, self.either_scale)
 
         self.physics_engine.update()
+        self.scene.update(delta_time)
 
     def on_key_press(self, key, key_modifiers):
         """
