@@ -88,7 +88,7 @@ import arcade.gui
 def on_draw(self):
     self.clear()
 
-    self.all_sprites.draw(pixelated=True)
+    self.scene.draw(pixelated=True)
     
     # Set Position of the buttons for the pause menu (used in the main for the mouse click detection)
     self.position_continue = self.window_height / 2
