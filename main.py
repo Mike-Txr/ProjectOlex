@@ -13,8 +13,6 @@ class MyGame(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title, fullscreen=True)
 
-        #arcade.set_background_color(arcade.color.AMAZON)
-
         self.paused = False # Variable to hold paused state. Set to True to pause the game, False to unpause.
 
         self.scene = None
