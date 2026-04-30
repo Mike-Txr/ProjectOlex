@@ -8,8 +8,8 @@ import functions.pause_screen as pause_screen
 import functions.game_over as game_over
 import functions.menu as menu
 import functions.key_handler as key_handler
-import functions.obstacles as obstacles
 import functions.screen_logic as screen_logic
+import functions.collision_logic as colls
 
 class MyGame(arcade.Window):
 
@@ -46,7 +46,8 @@ class MyGame(arcade.Window):
 
 
         #Load the tilemap (created with Tiled)
-        self.tile_map = arcade.load_tilemap("assets/TestMap.tmx", scaling=self.either_scale)
+        self.current_screen = "TestMap.tmx"
+        self.tile_map = arcade.load_tilemap("assets/"+self.current_screen, scaling=self.either_scale)
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
         self.edge_list = self.tile_map.object_lists["Trigger"] #invisible elements to change map
 
@@ -56,9 +57,6 @@ class MyGame(arcade.Window):
             settings.INGAME_HEIGHT*0.5*self.y_scale,
             self.either_scale)
         self.scene.add_sprite("Player", self.player)
-
-        #loads the simple physics engine 
-        self.physics_engine = arcade.PhysicsEngineSimple(self.player, self.scene["Obstacles"])
 
 
         
@@ -119,18 +117,33 @@ class MyGame(arcade.Window):
         directions["x"] *= self.x_scale
         directions["y"] *= self.y_scale
         playmov.move_player(self.player, directions)
+        
 
         collision = screen_logic.check_collisions(self.player, self.edge_list)
-        if collision:
+        if collision: #if the player is sufficiently out of the screen to go to the next one
+            current_coords = [self.player.center_x, self.player.center_y] #save current coords, in case the player needs to be reset
+            #load new scene
             self.tile_map = arcade.load_tilemap("assets/"+collision.properties["next_map"],
                                                 scaling=self.either_scale)
             self.scene = arcade.Scene.from_tilemap(self.tile_map)
             self.scene.add_sprite("Player", self.player)
             self.edge_list = self.tile_map.object_lists["Trigger"]
-            self.physics_engine = arcade.PhysicsEngineSimple(self.player, self.scene["Obstacles"])
             self.player = screen_logic.correct_player_pos(self.player, collision, self.either_scale)
+            if colls.coll_check(self.player, self.scene["Obstacles"]): #if there is an obstacle colliding with the player on the new screen
+                #load old scene again (player isn't allowed to change screens)
+                self.tile_map = arcade.load_tilemap("assets/"+self.current_screen,
+                                                    scaling=self.either_scale)
+                self.scene = arcade.Scene.from_tilemap(self.tile_map)
+                self.scene.add_sprite("Player", self.player)
+                self.edge_list = self.tile_map.object_lists["Trigger"]
+                #reset player to old position
+                self.player = screen_logic.counter_correct_player_pos(self.player, collision, self.either_scale, current_coords)
+            else:
+                #if the player is allowed to change screens, save the new map to the class variables
+                self.current_screen = collision.properties["next_map"]
 
-        self.physics_engine.update()
+        colls.coll_check(self.player, self.scene["Obstacles"], True)
+
         self.scene.update(delta_time)
 
     def on_key_press(self, key, key_modifiers):
