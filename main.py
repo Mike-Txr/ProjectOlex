@@ -10,6 +10,7 @@ import functions.menu as menu
 import functions.key_handler as key_handler
 import functions.screen_logic as screen_logic
 import functions.collision_logic as colls
+import functions.misc as misc
 
 class MyGame(arcade.Window):
 
@@ -45,18 +46,16 @@ class MyGame(arcade.Window):
         # Create your sprites and sprite lists here
 
 
-        #Load the tilemap (created with Tiled)
         self.current_screen = "TestMap.tmx"
-        self.tile_map = arcade.load_tilemap("assets/"+self.current_screen, scaling=self.either_scale)
-        self.scene = arcade.Scene.from_tilemap(self.tile_map)
-        self.edge_list = self.tile_map.object_lists["Trigger"] #invisible elements to change map
 
         #Create a player object based on the player class from the player file
         self.player = player.Player(
             settings.INGAME_WIDTH*0.5*self.x_scale,
             settings.INGAME_HEIGHT*0.5*self.y_scale,
             self.either_scale)
-        self.scene.add_sprite("Player", self.player)
+
+        misc.load_scene(self, self.current_screen)
+
 
 
         
@@ -121,23 +120,20 @@ class MyGame(arcade.Window):
 
         collision = screen_logic.check_collisions(self.player, self.edge_list)
         if collision: #if the player is sufficiently out of the screen to go to the next one
+
             current_coords = [self.player.center_x, self.player.center_y] #save current coords, in case the player needs to be reset
+
             #load new scene
-            self.tile_map = arcade.load_tilemap("assets/"+collision.properties["next_map"],
-                                                scaling=self.either_scale)
-            self.scene = arcade.Scene.from_tilemap(self.tile_map)
-            self.scene.add_sprite("Player", self.player)
-            self.edge_list = self.tile_map.object_lists["Trigger"]
+            misc.load_scene(self, collision.properties["next_map"])
             self.player = screen_logic.correct_player_pos(self.player, collision, self.either_scale)
+
             if colls.coll_check(self.player, self.scene["Obstacles"]): #if there is an obstacle colliding with the player on the new screen
-                #load old scene again (player isn't allowed to change screens)
-                self.tile_map = arcade.load_tilemap("assets/"+self.current_screen,
-                                                    scaling=self.either_scale)
-                self.scene = arcade.Scene.from_tilemap(self.tile_map)
-                self.scene.add_sprite("Player", self.player)
-                self.edge_list = self.tile_map.object_lists["Trigger"]
+                
+                misc.load_scene(self, self.current_screen) #load old scene again (player isn't allowed to change screens)
+
                 #reset player to old position
                 self.player = screen_logic.counter_correct_player_pos(self.player, collision, self.either_scale, current_coords)
+                
             else:
                 #if the player is allowed to change screens, save the new map to the class variables
                 self.current_screen = collision.properties["next_map"]
