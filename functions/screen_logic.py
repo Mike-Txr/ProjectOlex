@@ -16,9 +16,9 @@ def check_collisions(player, edge_list): #function to check collision with trigg
 
         if ( #if the player is far enough into the edge of the screen (40% of the player is outside)
             player.right-0.4*player.width > left and
-            player.left+0.4*player.height < right and
+            player.left+0.4*player.width < right and
             player.top-0.4*player.height > bottom and
-            player.bottom+0.4*player.width < top
+            player.bottom+0.4*player.height < top
         ):
             return object
     return False
@@ -34,4 +34,17 @@ def correct_player_pos(player, collision, scale):
         player.center_x = 0 + 0.2*player.width
     elif collision.properties["side"] == "left":
         player.center_x = 384*scale - 0.2*player.width
+    return player
+
+def counter_correct_player_pos(player, collision, scale, orig_coords):
+    player.center_x = orig_coords[0]
+    player.center_y = orig_coords[1]
+    if collision.properties["side"] == "top":
+        player.center_y -= scale
+    elif collision.properties["side"] == "bottom":
+        player.center_y += scale
+    elif collision.properties["side"] == "right":
+        player.center_x -= scale
+    elif collision.properties["side"] == "left":
+        player.center_x += scale
     return player

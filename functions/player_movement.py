@@ -18,6 +18,5 @@ def calc_movement(player):
     return directions
 
 def move_player(player, directions):
-    player.change_x = directions["x"]
-    player.change_y = directions["y"]
-    pass
+    player.center_x += directions["x"]
+    player.center_y += directions["y"]
