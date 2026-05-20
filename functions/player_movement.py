@@ -2,6 +2,7 @@ import arcade
 import functions.settings as settings
 import functions.key_handler as kh
 import functions.player as player
+import functions.collision_logic as colls
 
 directions = {"x":0, "y":0}
 
@@ -17,6 +18,13 @@ def calc_movement(player):
 
     return directions
 
-def move_player(player, directions):
+def move_player(player, directions, obstacles):
+    # Erst X bewegen und prüfen
     player.center_x += directions["x"]
+    if colls.coll_check(player, obstacles):
+        player.center_x -= directions["x"]  # Zurücksetzen
+    
+    # Dann Y bewegen und prüfen
     player.center_y += directions["y"]
+    if colls.coll_check(player, obstacles):
+        player.center_y -= directions["y"]  # Zurücksetzen

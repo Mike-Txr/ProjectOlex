@@ -155,7 +155,7 @@ class MyGame(arcade.Window):
         directions = playmov.calc_movement(self.player)
         directions["x"] *= self.x_scale
         directions["y"] *= self.y_scale
-        playmov.move_player(self.player, directions)
+        playmov.move_player(self.player, directions, self.scene["Obstacles"])
         
 
         collision = screen_logic.check_collisions(self.player, self.edge_list)

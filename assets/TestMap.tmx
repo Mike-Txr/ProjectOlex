@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="16" height="9" tilewidth="24" tileheight="24" infinite="0" nextlayerid="6" nextobjectid="9">
+<map version="1.10" tiledversion="1.12.1" orientation="orthogonal" renderorder="right-down" width="16" height="9" tilewidth="24" tileheight="24" infinite="0" nextlayerid="7" nextobjectid="13">
  <tileset firstgid="1" source="TestTileset.tsx"/>
  <layer id="1" name="Ground" width="16" height="9">
   <data encoding="csv">
@@ -32,6 +32,14 @@
    <properties>
     <property name="next_map" value="TestMap2.tmx"/>
     <property name="side" value="top"/>
+   </properties>
+  </object>
+ </objectgroup>
+ <objectgroup id="6" name="Entities">
+  <object id="12" gid="4" x="168" y="72" width="24" height="24">
+   <properties>
+    <property name="collision_function" value="combat"/>
+    <property name="type" value="npc"/>
    </properties>
   </object>
  </objectgroup>
