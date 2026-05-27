@@ -250,7 +250,7 @@ class MyGame(arcade.Window):
             
         if key == arcade.key.B:#################################only for debugging, will be removed later, triggers the battle view when B is pressed
             #enemy data will be part of a class later
-            if not self.battle:        
+            if not self.battle:
                 enemy_data = {"max_hp": 5, "attack": 5, "red_time": 1.0, "xp_reward": 10, "coin_reward": 10}#########
                 self.battle = True
                 self.battleview.start_battle(enemy_data)
