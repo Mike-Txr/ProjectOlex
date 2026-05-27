@@ -81,6 +81,9 @@ class PauseScreen:#class for the Buttons
 
         elif symbol in (arcade.key.ENTER, arcade.key.RETURN):
             self.activate_selected()
+
+        elif symbol == arcade.key.ESCAPE and not self.game.game_over:#only allow pausing if the game is not over (not self.game_over)
+            self.game.paused = not self.game.paused
     
     #function to activate the selected button and either continue, restart or quit
     def activate_selected(self):
