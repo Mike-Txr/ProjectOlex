@@ -27,6 +27,11 @@ class BattleScreen:
         self.green_active = False
 
         self.block_success = False
+        self.current_enemy_health = 0
+
+        self.feedback_text = ""
+        self.feedback_timer = 0.0
+        self.feedback_duration = 0.8
 
         self.levelup_pending = False
 
@@ -46,6 +51,11 @@ class BattleScreen:
         ]
 
         self.levelup_selected = 0
+        self.ui_sprites = arcade.SpriteList()
+        self.arrow = arcade.Sprite("assets/arrow.png", scale=0.1)
+        self.ui_sprites.append(self.arrow)
+        self.arrow.center_x = 0
+        self.arrow.center_y = 0
 
         @self.hp_button.event("on_click")
         def _(event):
@@ -79,12 +89,18 @@ class BattleScreen:
 
         self.levelup_manager.add(self.levelup_anchor)
 
+        self.text_level = arcade.Text("LEVEL UP!", self.game.window_width // 2, self.game.window_height // 2 + 200, arcade.color.WHITE, 50, anchor_x="center")
+        self.text_chooser = arcade.Text("Choose a stat to increase:", self.game.window_width // 2, self.game.window_height // 2 + 150, arcade.color.WHITE, 30, anchor_x="center")
+
     def start_battle(self, enemy):
         self.current_enemy = enemy
+        self.current_enemy_health = self.current_enemy["max_hp"]
         self.title_label.text = "Battle!"
         self.state = "player_turn"
         self.timer = 0.0
         self.cue_time = 0.0
+        self.feedback_text = ""
+        self.feedback_timer = 0.0
         self.green_active = False
         self.block_success = False
         # später kannst du hier enemy.hp, enemy.texture usw. übernehmen
@@ -92,6 +108,11 @@ class BattleScreen:
     def update(self, delta_time):
         if self.state in ("inactive", "finished"):
             return
+        
+        if self.feedback_timer > 0:
+            self.feedback_timer -= delta_time
+            if self.feedback_timer <= 0:
+                self.feedback_text = ""
 
         self.timer = self.timer + delta_time
 
@@ -140,15 +161,17 @@ class BattleScreen:
 
         if missed:
             damage = 2
-            print("verkackt")
+            self.feedback_text = "MISS!"
         else:
             damage = 10
-            print("PERFECT")
+            self.feedback_text = "PERFECT!"
 
-        self.current_enemy["max_hp"] -= damage
+        self.feedback_timer = self.feedback_duration
+
+        self.current_enemy_health -= damage
         print(f"Spieler macht {damage} Schaden")
 
-        if self.current_enemy["max_hp"] <= 0:
+        if self.current_enemy_health <= 0:
             self.end_battle(win=True)
             return
 
@@ -165,11 +188,12 @@ class BattleScreen:
 
         if blocked or self.block_success:
             damage = max(1, int(damage * 0.3))
-            print("BLOCK!")
+            self.feedback_text = "PERFECT!"
 
         else:
-            print("nicht geblockt")
+            self.feedback_text = "MISS!"
 
+        self.feedback_timer = self.feedback_duration
         self.game.set_health(self.game.health - damage)
         print("Gegner macht", damage, "Schaden")
 
@@ -262,6 +286,28 @@ class BattleScreen:
         self.draw_traffic_light()
         self.ui.draw()
 
+        if self.feedback_text != "":
+            feedback = arcade.Text(
+                self.feedback_text,
+                self.game.window_width // 2,
+                self.game.window_height * 0.28,
+                arcade.color.BLACK,
+                28,
+                anchor_x="center"
+            )
+            feedback.draw()
+
+        if self.current_enemy is not None and self.state not in ("inactive", "finished"):
+            hp_text = arcade.Text(
+                f"Enemy HP: {max(0, self.current_enemy_health)} / {self.current_enemy['max_hp']}",
+                self.game.window_width // 2,
+                self.game.window_height - 80,
+                arcade.color.BLACK,
+                24,
+                anchor_x="center"
+            )
+            hp_text.draw()
+
         if self.levelup_pending:
 
             arcade.draw_lrbt_rectangle_filled(
@@ -272,6 +318,15 @@ class BattleScreen:
                 (0, 0, 0, 180)
             )
 
+            # Pfeil neben dem aktuell ausgewählten Button
+            for i, button in enumerate(self.levelup_buttons):
+                if i == self.levelup_selected:
+                    self.arrow.center_x = button.center_x - (button.width / 2) - (self.arrow.width / 2) - 20
+                    self.arrow.center_y = button.center_y
+
+            self.ui_sprites.draw()
+            self.text_level.draw()
+            self.text_chooser.draw()
             self.levelup_manager.draw()
 
     def on_key_press(self, key, key_modifiers):
@@ -284,6 +339,7 @@ class BattleScreen:
                     self.finish_attack_timing(missed=False)
                 else:
                     print("Too early")
+                    self.finish_attack_timing(missed=True)
 
             elif self.state == "enemy_timing_block":
                 if self.green_active:
@@ -291,6 +347,7 @@ class BattleScreen:
                     self.resolve_enemy_attack(blocked=True)
                 else:
                     print("Too early")
+                    self.resolve_enemy_attack(blocked=False)
 
         if self.levelup_pending:
             if key == arcade.key.W or key == arcade.key.UP:
