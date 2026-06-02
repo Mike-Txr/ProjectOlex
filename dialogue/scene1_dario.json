@@ -1,0 +1,8 @@
+[
+    ["NPC", "Hello!"],
+    ["Player", "How are you?"],
+    
+    "combat",
+
+    ["NPC", "Goodbye."]
+]

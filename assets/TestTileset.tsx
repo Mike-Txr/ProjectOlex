@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.12.1" name="TestTileset" tilewidth="24" tileheight="24" tilecount="4" columns="0">
+<tileset version="1.10" tiledversion="1.12.1" name="TestTileset" tilewidth="24" tileheight="24" tilecount="5" columns="0">
  <grid orientation="orthogonal" width="1" height="1"/>
  <tile id="0">
   <image source="obstacle_tile.png" width="24" height="24"/>
@@ -12,5 +12,8 @@
  </tile>
  <tile id="3">
   <image source="NPC.png" width="24" height="24"/>
+ </tile>
+ <tile id="4">
+  <image source="dialogue_npc.png" width="24" height="24"/>
  </tile>
 </tileset>

@@ -1,0 +1,7 @@
+{
+    "max_hp": 5,
+    "attack": 5,
+    "red_time": 1.0,
+    "xp_reward": 10,
+    "coin_reward": 10
+}
