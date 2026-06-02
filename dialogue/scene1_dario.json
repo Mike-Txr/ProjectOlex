@@ -1,8 +1,8 @@
 [
-    "Hello!",
-    "How are you?",
+    ["NPC", "Hello!"],
+    ["Player", "How are you?"],
     
     "combat",
 
-    "Goodbye."
+    ["NPC", "Goodbye."]
 ]

@@ -38,6 +38,8 @@
  <objectgroup id="5" name="Entities">
   <object id="2" gid="4" x="168" y="96" width="24" height="24">
    <properties>
+    <property name="dialogue" value="combat.json"/>
+    <property name="stats" value="normal_enemy.json"/>
     <property name="type" value="npc"/>
    </properties>
   </object>
