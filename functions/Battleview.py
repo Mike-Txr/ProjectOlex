@@ -1,4 +1,3 @@
-#nächste mal um level up kümmern dass das geht und dann weiter schaeun
 import arcade
 import arcade.gui
 
@@ -8,7 +7,7 @@ class BattleScreen:
         self.ui = arcade.gui.UIManager()
         self.root = arcade.gui.UIAnchorLayout()
         self.ui.add(self.root)
-
+        
         self.current_enemy = None#variable to store the current enemy, which will be set when start_battle is called
 
         #debug text, not relevant
@@ -35,7 +34,7 @@ class BattleScreen:
 
         self.levelup_pending = False
 
-        #level up menu
+        #########level up menu#########
         self.levelup_manager = arcade.gui.UIManager()
 
         self.levelup_box = arcade.gui.UIBoxLayout()
@@ -92,6 +91,112 @@ class BattleScreen:
         self.text_level = arcade.Text("LEVEL UP!", self.game.window_width // 2, self.game.window_height // 2 + 200, arcade.color.WHITE, 50, anchor_x="center")
         self.text_chooser = arcade.Text("Choose a stat to increase:", self.game.window_width // 2, self.game.window_height // 2 + 150, arcade.color.WHITE, 30, anchor_x="center")
 
+        #########battle action menu#########
+        # battle action menu
+        self.action_manager = arcade.gui.UIManager()
+        self.action_box = arcade.gui.UIBoxLayout()
+
+        self.standard_attack_button = arcade.gui.UIFlatButton(text="Standard-Attack", width=300)
+        self.power_attack_button = arcade.gui.UIFlatButton(text="Power-Attacks", width=300)
+        self.items_button = arcade.gui.UIFlatButton(text="Items", width=300)
+
+        self.action_buttons = [
+            self.standard_attack_button,
+            self.power_attack_button,
+            self.items_button
+        ]
+
+        self.action_selected = 0
+
+        @self.standard_attack_button.event("on_click")
+        def _(event):
+            self.action_selected = 0
+            self.start_standard_attack()
+
+        @self.power_attack_button.event("on_click")
+        def _(event):
+            self.action_selected = 1
+            self.open_power_menu()
+
+        @self.items_button.event("on_click")
+        def _(event):
+            self.action_selected = 2
+            self.open_items_menu()
+
+        self.action_box.add(self.standard_attack_button)
+        self.action_box.add(arcade.gui.UISpace(height=20))
+        self.action_box.add(self.power_attack_button)
+        self.action_box.add(arcade.gui.UISpace(height=20))
+        self.action_box.add(self.items_button)
+
+        self.action_anchor = arcade.gui.UIAnchorLayout()
+        self.action_anchor.add(
+            anchor_x="center_x",
+            anchor_y="center_y",
+            child=self.action_box
+        )
+
+        self.action_manager.add(self.action_anchor)
+
+        ########power attack submenu########
+        # power attack submenu
+        self.power_menu_open = False
+
+        self.power_manager = arcade.gui.UIManager()
+        self.power_box = arcade.gui.UIBoxLayout()
+
+        self.power_attack_1_button = arcade.gui.UIFlatButton(text="Power Attack 1", width=300)
+        self.power_attack_2_button = arcade.gui.UIFlatButton(text="Power Attack 2", width=300)
+        self.power_attack_3_button = arcade.gui.UIFlatButton(text="Power Attack 3", width=300)
+        self.power_back_button = arcade.gui.UIFlatButton(text="Back", width=300)
+
+        self.power_buttons = [
+            self.power_attack_1_button,
+            self.power_attack_2_button,
+            self.power_attack_3_button,
+            self.power_back_button
+        ]
+
+        self.power_selected = 0
+
+        @self.power_attack_1_button.event("on_click")
+        def _(event):
+            self.power_selected = 0
+            self.choose_power_attack(0)
+
+        @self.power_attack_2_button.event("on_click")
+        def _(event):
+            self.power_selected = 1
+            self.choose_power_attack(1)
+
+        @self.power_attack_3_button.event("on_click")
+        def _(event):
+            self.power_selected = 2
+            self.choose_power_attack(2)
+
+        @self.power_back_button.event("on_click")
+        def _(event):
+            self.power_selected = 3
+            self.close_power_menu()
+
+        self.power_box.add(self.power_attack_1_button)
+        self.power_box.add(arcade.gui.UISpace(height=20))
+        self.power_box.add(self.power_attack_2_button)
+        self.power_box.add(arcade.gui.UISpace(height=20))
+        self.power_box.add(self.power_attack_3_button)
+        self.power_box.add(arcade.gui.UISpace(height=20))
+        self.power_box.add(self.power_back_button)
+
+        self.power_anchor = arcade.gui.UIAnchorLayout()
+        self.power_anchor.add(
+            anchor_x="center_x",
+            anchor_y="center_y",
+            child=self.power_box
+        )
+
+        self.power_manager.add(self.power_anchor)
+        self.power_manager.disable()
+
     def start_battle(self, enemy):
         self.current_enemy = enemy
         self.current_enemy_health = self.current_enemy["max_hp"]
@@ -103,7 +208,53 @@ class BattleScreen:
         self.feedback_timer = 0.0
         self.green_active = False
         self.block_success = False
+        self.action_selected = 0
+        self.action_manager.enable()
+        self.power_menu_open = False
+        self.power_manager.disable()
+        self.action_manager.enable()
+        self.action_selected = 0
+        self.power_selected = 0
         # später kannst du hier enemy.hp, enemy.texture usw. übernehmen
+
+    def start_standard_attack(self):
+        if self.state != "player_turn":
+            return
+
+        self.action_manager.disable()
+        self.player_attack_pressed()
+
+    def open_power_menu(self):
+        if self.state != "player_turn":
+            return
+
+        self.power_menu_open = True
+        self.power_selected = 0
+
+        self.action_manager.disable()
+        self.power_manager.enable()
+
+    def close_power_menu(self):
+        self.power_menu_open = False
+
+        self.power_manager.disable()
+        self.action_manager.enable()
+
+    def choose_power_attack(self, index):
+        if self.state != "player_turn" or not self.power_menu_open:
+            return
+
+        # Platzhalter: noch keine echte Power-Attack-Funktion
+        print(f"Power Attack {index + 1} gewählt")
+
+        # fürs Erste einfach wieder ins Hauptmenü zurück
+        self.close_power_menu()
+
+    def open_items_menu(self):
+        if self.state != "player_turn":
+            return
+
+        print("Items submenu kommt als nächstes")
 
     def update(self, delta_time):
         if self.state in ("inactive", "finished"):
@@ -176,6 +327,7 @@ class BattleScreen:
             return
 
         self.state = "enemy_turn"
+        self.action_manager.disable()
         self.timer = 0.0
         self.cue_time = 0.0
         self.green_active = False
@@ -198,6 +350,7 @@ class BattleScreen:
         print("Gegner macht", damage, "Schaden")
 
         self.state = "player_turn"
+        self.action_manager.enable()
         self.timer = 0.0
         self.cue_time = 0.0
         self.green_active = False
@@ -286,6 +439,34 @@ class BattleScreen:
         self.draw_traffic_light()
         self.ui.draw()
 
+        if self.state == "player_turn" and not self.power_menu_open:
+            for i, button in enumerate(self.action_buttons):
+                if i == self.action_selected:
+                    self.arrow.center_x = button.center_x - (button.width / 2) - (self.arrow.width / 2) - 20
+                    self.arrow.center_y = button.center_y
+
+            self.ui_sprites.draw()
+            self.action_manager.draw()
+
+        if self.power_menu_open:
+            arcade.draw_lrbt_rectangle_filled(
+                0,
+                self.game.window_width,
+                0,
+                self.game.window_height,
+                (0, 0, 0, 180)
+            )
+
+            self.arrow.visible = True
+
+            for i, button in enumerate(self.power_buttons):
+                if i == self.power_selected:
+                    self.arrow.center_x = button.center_x - (button.width / 2) - (self.arrow.width / 2) - 20
+                    self.arrow.center_y = button.center_y
+
+            self.ui_sprites.draw()
+            self.power_manager.draw()
+
         if self.feedback_text != "":
             feedback = arcade.Text(
                 self.feedback_text,
@@ -330,11 +511,55 @@ class BattleScreen:
             self.levelup_manager.draw()
 
     def on_key_press(self, key, key_modifiers):
-        if key == arcade.key.SPACE:
-            if self.state == "player_turn":
-                self.player_attack_pressed()
+        if self.levelup_pending:
+            if key == arcade.key.W or key == arcade.key.UP:
+                self.levelup_selected = (self.levelup_selected - 1) % len(self.levelup_buttons)
 
-            elif self.state == "player_timing_attack":
+            elif key == arcade.key.S or key == arcade.key.DOWN:
+                self.levelup_selected = (self.levelup_selected + 1) % len(self.levelup_buttons)
+
+            elif key == arcade.key.ENTER or key == arcade.key.RETURN:
+                self.activate_levelup_choice()
+
+            return
+
+        if self.power_menu_open:
+            if key == arcade.key.W or key == arcade.key.UP:
+                self.power_selected = (self.power_selected - 1) % len(self.power_buttons)
+
+            elif key == arcade.key.S or key == arcade.key.DOWN:
+                self.power_selected = (self.power_selected + 1) % len(self.power_buttons)
+
+            elif key == arcade.key.ENTER or key == arcade.key.RETURN or key == arcade.key.SPACE:
+                if self.power_selected == 3:
+                    self.close_power_menu()
+                else:
+                    self.choose_power_attack(self.power_selected)
+
+            elif key == arcade.key.ESCAPE:
+                self.close_power_menu()
+
+            return
+
+        if self.state == "player_turn":
+            if key == arcade.key.W or key == arcade.key.UP:
+                self.action_selected = (self.action_selected - 1) % len(self.action_buttons)
+
+            elif key == arcade.key.S or key == arcade.key.DOWN:
+                self.action_selected = (self.action_selected + 1) % len(self.action_buttons)
+
+            elif key == arcade.key.ENTER or key == arcade.key.RETURN or key == arcade.key.SPACE:
+                if self.action_selected == 0:
+                    self.start_standard_attack()
+                elif self.action_selected == 1:
+                    self.open_power_menu()
+                elif self.action_selected == 2:
+                    self.open_items_menu()
+
+            return
+
+        if key == arcade.key.SPACE:
+            if self.state == "player_timing_attack":
                 if self.green_active:
                     self.finish_attack_timing(missed=False)
                 else:
@@ -348,15 +573,3 @@ class BattleScreen:
                 else:
                     print("Too early")
                     self.resolve_enemy_attack(blocked=False)
-
-        if self.levelup_pending:
-            if key == arcade.key.W or key == arcade.key.UP:
-                self.levelup_selected = (self.levelup_selected - 1) % len(self.levelup_buttons)
-
-            elif key == arcade.key.S or key == arcade.key.DOWN:
-                self.levelup_selected = (self.levelup_selected + 1) % len(self.levelup_buttons)
-
-            elif key == arcade.key.ENTER or key == arcade.key.RETURN:
-                self.activate_levelup_choice()
-
-            return
