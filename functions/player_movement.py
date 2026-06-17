@@ -21,10 +21,8 @@ def calc_movement(player):
 def move_player(player, directions, obstacles):
     # Erst X bewegen und prüfen
     player.center_x += directions["x"]
-    if colls.coll_check(player, obstacles):
-        player.center_x -= directions["x"]  # Zurücksetzen
+    colls.coll_check(player, obstacles, adjust_player=True)
     
     # Dann Y bewegen und prüfen
     player.center_y += directions["y"]
-    if colls.coll_check(player, obstacles):
-        player.center_y -= directions["y"]  # Zurücksetzen
+    colls.coll_check(player, obstacles, adjust_player=True)
