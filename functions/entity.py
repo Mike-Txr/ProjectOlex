@@ -66,12 +66,14 @@ class NPC(Entity):
         for stat, value in stats.items():
             setattr(obj, stat, value)
 
-        #obj.dialogue = sprite.properties.get("dialogue", "")
+        obj.on_collision = "dialogue"
 
         return obj
     
 
     def collision(self):
-        print(self.dialogue)
+        if self.on_collision == "dialogue":
+            print(self.dialogue)
+            self.on_collision = "nothing"
 
     

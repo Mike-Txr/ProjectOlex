@@ -13,6 +13,7 @@ import functions.UI as UI
 import functions.collision_logic as colls
 import functions.misc as misc
 import functions.Battleview as battleview
+import functions.dialogue_interface as dia_int
 
 class MyGame(arcade.Window):
 
@@ -82,8 +83,6 @@ class MyGame(arcade.Window):
 
         UI.setup_hud(self)#load the function to set up the HUD (health, power, etc.) from UI.py
         self.set_xp(self.current_xp)
-
-        pass
     
 #############################These functions should maybe be moved to the corresponding .py files, but for now they stay here until more game logic is developed############
 
@@ -132,6 +131,9 @@ class MyGame(arcade.Window):
 
         # Call draw() on all your sprite lists below
         self.scene.draw(pixelated=True)
+
+        if hasattr(self, "dialogue_box"): #Check if there is currently a dialogue_box to be drawn
+            self.dialogue_box.draw() #Call the draw method on it (from the speech_box class in dialogue_interface.py)
 
         if self.menu:#if the menu variable is true, draw the menu screen
             self.menu_screen.draw()#call the on_draw function from menu.py
@@ -194,7 +196,7 @@ class MyGame(arcade.Window):
         directions["y"] *= self.y_scale
         playmov.move_player(self.player, directions, self.scene["Obstacles"])
         
-        collision_entity = colls.coll_check(self.player, self.entity_list)
+        collision_entity = colls.coll_check(self.player, self.entity_list, True)
         if collision_entity:
             collision_entity.collision()
 
@@ -227,8 +229,6 @@ class MyGame(arcade.Window):
         Called whenever a key on the keyboard is pressed.
         """
 
-        key_handler.key_press(key)
-
         #if the menu, paused or game over screen is active, pass the key press event to the corresponding .py file
         if self.menu:
             self.menu_screen.on_key_press(key, key_modifiers)
@@ -242,6 +242,13 @@ class MyGame(arcade.Window):
             self.game_over_screen.on_key_press(key, key_modifiers)
             return
         
+
+        
+        key_handler.key_press(key, self)
+
+
+
+
         if key == arcade.key.ESCAPE and not self.game_over:#only allow pausing if the game is not over (not self.game_over)
             self.paused = True
             
@@ -264,6 +271,8 @@ class MyGame(arcade.Window):
         if self.battle:
             self.battleview.on_key_press(key, key_modifiers)
             return
+        
+
     
         
         
