@@ -1,5 +1,532 @@
 import arcade
 import arcade.gui
+from functions.Battlemenu import BattleMenu
+
+
+class BattleScreen:
+    def __init__(self, game):
+        self.game = game  # variable game, to access the main game class and its attributes like health, window_width, etc.
+        self.ui = arcade.gui.UIManager()
+        self.root = arcade.gui.UIAnchorLayout()
+        self.ui.add(self.root)
+
+        self.current_enemy = None  # variable to store the current enemy, which will be set when start_battle is called
+
+        # debug text, not relevant
+        self.title_label = arcade.gui.UILabel(text="Battle!", font_size=40, text_color=arcade.color.WHITE)
+        self.root.add(self.title_label, anchor_x="center", anchor_y="center")
+
+        # important variables for the battle logic
+        self.state = "inactive"  # variable to track the state of the battle screen, can be "inactive", "active", or "victory"
+        self.timer = 0.0
+        self.turn_delay = 1.5  # delay between turns in seconds
+
+        # variables for the timing mechanic
+        self.red_time = 1.2
+        self.green_time = 0.35
+        self.cue_time = 0.0
+        self.green_active = False
+
+        self.block_success = False
+        self.current_enemy_health = 0
+
+        self.feedback_text = ""
+        self.feedback_timer = 0.0
+        self.feedback_duration = 0.8
+
+        self.levelup_pending = False
+
+        self.power_spam_active = False
+        self.power_attack_index = 0
+        self.power_spam_count = 0
+        self.power_spam_timer = 0.0
+        self.power_spam_duration = 1.4
+
+        # Platzhalter-Werte, später kannst du sie noch feinjustieren
+        self.power_attack_data = [
+            {"name": "Power Attack 1", "target": 7,  "min_damage": 8,  "max_damage": 14, "power_cost": 5},
+            {"name": "Power Attack 2", "target": 11, "min_damage": 10, "max_damage": 20, "power_cost": 8},
+            {"name": "Power Attack 3", "target": 15, "min_damage": 12, "max_damage": 28, "power_cost": 12},
+        ]
+
+        # battle menus
+        self.action_menu = BattleMenu(
+            game=self.game,
+            button_texts=["Standard-Attack", "Power-Attacks", "Items"],
+            callbacks=[self.start_standard_attack, self.open_power_menu, self.open_items_menu],
+        )
+        self.action_menu.disable()
+
+        self.power_menu = BattleMenu(
+            game=self.game,
+            button_texts=["Power Attack 1", "Power Attack 2", "Power Attack 3", "Back"],
+            callbacks=[
+                lambda: self.choose_power_attack(0),
+                lambda: self.choose_power_attack(1),
+                lambda: self.choose_power_attack(2),
+                self.close_power_menu,
+            ],
+            escape_index=3,
+        )
+        self.power_menu.disable()
+
+        self.levelup_menu = BattleMenu(
+            game=self.game,
+            button_texts=["Increase Max HP", "Increase Max Power", "Increase Attack"],
+            callbacks=[
+                lambda: self.apply_levelup_choice(0),
+                lambda: self.apply_levelup_choice(1),
+                lambda: self.apply_levelup_choice(2),
+            ],
+            title_text="LEVEL UP!",
+            subtitle_text="Choose a stat to increase:",
+            allow_space=False,
+        )
+        self.levelup_menu.disable()
+
+    def start_battle(self, enemy):
+        self.current_enemy = enemy
+        self.current_enemy_health = self.current_enemy["max_hp"]
+
+        self.title_label.text = "Battle!"
+        self.state = "player_turn"
+        self.timer = 0.0
+        self.cue_time = 0.0
+        self.green_active = False
+        self.block_success = False
+
+        self.feedback_text = ""
+        self.feedback_timer = 0.0
+
+        self.power_spam_active = False
+        self.power_attack_index = 0
+        self.power_spam_count = 0
+        self.power_spam_timer = 0.0
+
+        self.action_menu.reset()
+        self.power_menu.reset()
+        self.levelup_menu.reset()
+
+        self.action_menu.enable()
+        self.power_menu.disable()
+        self.levelup_menu.disable()
+
+        self.levelup_pending = False
+        # später kannst du hier enemy.hp, enemy.texture usw. übernehmen
+
+    def start_standard_attack(self):
+        if self.state != "player_turn":
+            return
+
+        self.action_menu.disable()
+        self.player_attack_pressed()
+
+    def open_power_menu(self):
+        if self.state != "player_turn":
+            return
+
+        self.action_menu.disable()
+        self.power_menu.reset()
+        self.power_menu.enable()
+
+    def close_power_menu(self):
+        self.power_menu.disable()
+        self.action_menu.enable()
+
+    def choose_power_attack(self, index):
+        if self.state != "player_turn" or not self.power_menu.enabled:
+            return
+
+        self.start_power_attack(index)
+
+    def start_power_attack(self, index):
+        if self.state != "player_turn":
+            return
+
+        data = self.power_attack_data[index]
+        cost = data["power_cost"]
+
+        if self.game.power < cost:
+            self.feedback_text = "NOT ENOUGH POWER!"
+            self.feedback_timer = self.feedback_duration
+            print("Zu wenig Power für diese Attacke")
+            self.power_menu.enable()
+            return
+
+        self.game.set_power(self.game.power - cost)
+
+        self.power_attack_index = index
+        self.power_spam_count = 0
+        self.power_spam_timer = self.power_spam_duration
+        self.power_spam_active = True
+
+        self.action_menu.disable()
+        self.power_menu.disable()
+
+        self.state = "power_spam"
+        self.feedback_text = ""
+        self.feedback_timer = 0.0
+
+        print(f"{data['name']} gestartet, kostet {cost} Power")
+
+    def resolve_power_attack(self):
+        if self.state != "power_spam":
+            return
+
+        data = self.power_attack_data[self.power_attack_index]
+        target = data["target"]
+
+        ratio = min(self.power_spam_count / target, 1.0)
+        damage = int(round(data["min_damage"] + (data["max_damage"] - data["min_damage"]) * ratio))
+        damage = max(data["min_damage"], min(data["max_damage"], damage))
+
+        self.feedback_text = f"{data['name']}! {damage} DMG"
+        self.feedback_timer = self.feedback_duration
+
+        self.current_enemy_health -= damage
+        print(f"{data['name']} macht {damage} Schaden ({self.power_spam_count}x SPACE)")
+
+        self.power_spam_active = False
+
+        if self.current_enemy_health <= 0:
+            self.end_battle(win=True)
+            return
+
+        self.state = "enemy_turn"
+        self.timer = 0.0
+        self.cue_time = 0.0
+        self.green_active = False
+
+    def open_items_menu(self):
+        if self.state != "player_turn":
+            return
+
+        # Platzhalter, kommt später
+        print("Items submenu kommt als nächstes")
+
+    def apply_levelup_choice(self, choice_index):
+        if not self.levelup_pending:
+            return
+
+        if choice_index == 0:
+            self.game.max_health += 5
+            self.game.set_health(self.game.max_health)
+            print("Max HP erhöht")
+
+        elif choice_index == 1:
+            self.game.max_power += 10
+            self.game.set_power(self.game.max_power)
+            print("Max Power erhöht")
+
+        elif choice_index == 2:
+            self.game.attack += 2
+            print("Attack erhöht")
+
+        self.game.set_health(self.game.max_health)
+        self.game.set_power(self.game.max_power)
+        
+        self.levelup_pending = False
+        self.state = "inactive"
+        self.current_enemy = None
+        self.game.battle = False
+
+        self.levelup_menu.disable()
+        self.action_menu.disable()
+        self.power_menu.disable()
+        self.disable()
+
+    def update(self, delta_time):
+        if self.state in ("inactive", "finished"):
+            return
+
+        if self.feedback_timer > 0:
+            self.feedback_timer -= delta_time
+            if self.feedback_timer <= 0:
+                self.feedback_text = ""
+
+        self.timer = self.timer + delta_time
+
+        if self.state == "player_timing_attack":
+            self.cue_time = self.cue_time + delta_time
+
+            if self.cue_time >= self.red_time:
+                self.green_active = True
+
+                if self.cue_time >= self.red_time + self.green_time:
+                    self.finish_attack_timing(missed=True)
+
+        elif self.state == "enemy_turn":
+            if self.timer >= self.turn_delay:
+                self.start_block_timing()
+
+        elif self.state == "enemy_timing_block":
+            self.cue_time += delta_time
+
+            if self.cue_time >= self.current_enemy["red_time"]:
+                self.green_active = True
+
+            if self.cue_time >= self.current_enemy["red_time"] + self.green_time:
+                self.resolve_enemy_attack(blocked=False)
+
+        elif self.state == "power_spam":
+            self.power_spam_timer -= delta_time
+
+            if self.power_spam_timer <= 0:
+                self.resolve_power_attack()
+
+    def player_attack_pressed(self):
+        if self.state == "player_turn":
+            self.state = "player_timing_attack"
+            self.timer = 0.0
+            self.cue_time = 0.0
+            self.green_active = False
+
+    def start_block_timing(self):
+        if self.state == "enemy_turn":
+            self.state = "enemy_timing_block"
+            self.timer = 0.0
+            self.cue_time = 0.0
+            self.green_active = False
+            self.block_success = False
+
+    def finish_attack_timing(self, missed=False):
+        if self.state != "player_timing_attack" or self.current_enemy is None:
+            return
+
+        self.state = "resolving"
+
+        if missed:
+            damage = 2
+            self.feedback_text = "MISS!"
+        else:
+            damage = 10
+            self.feedback_text = "PERFECT!"
+
+        self.feedback_timer = self.feedback_duration
+
+        self.current_enemy_health -= damage
+        print(f"Spieler macht {damage} Schaden")
+
+        if self.current_enemy_health <= 0:
+            self.end_battle(win=True)
+            return
+
+        self.state = "enemy_turn"
+        self.timer = 0.0
+        self.cue_time = 0.0
+        self.green_active = False
+        self.action_menu.disable()
+
+    def resolve_enemy_attack(self, blocked=False):
+        if self.state != "enemy_timing_block":
+            return
+
+        damage = self.current_enemy["attack"]
+
+        if blocked or self.block_success:
+            damage = max(1, int(damage * 0.3))
+            self.feedback_text = "PERFECT!"
+        else:
+            self.feedback_text = "MISS!"
+
+        self.feedback_timer = self.feedback_duration
+        self.game.set_health(self.game.health - damage)
+        print("Gegner macht", damage, "Schaden")
+
+        self.state = "player_turn"
+        self.timer = 0.0
+        self.cue_time = 0.0
+        self.green_active = False
+        self.block_success = False
+
+        self.action_menu.reset()
+        self.action_menu.enable()
+
+    def end_battle(self, win=False):
+        print("Battle beendet:", "Sieg" if win else "Niederlage")
+        old_level = self.game.level
+
+        self.game.set_coins(self.game.coins + self.current_enemy["coin_reward"])
+        self.game.set_xp(self.game.current_xp + self.current_enemy["xp_reward"])
+
+        self.action_menu.disable()
+        self.power_menu.disable()
+
+        if self.game.level > old_level:
+            self.levelup_pending = True
+            self.state = "levelup"
+            self.levelup_menu.reset()
+            self.levelup_menu.enable()
+            return
+
+        self.state = "finished"
+        self.current_enemy = None
+        self.game.battle = False
+        self.levelup_menu.disable()
+        self.disable()
+
+    def enable(self):
+        self.ui.enable()
+
+    def disable(self):
+        self.ui.disable()
+
+    def draw_traffic_light(self):
+        if self.state not in ("player_timing_attack", "enemy_timing_block"):
+            return
+
+        x = self.game.window_width * 0.5
+        y = self.game.window_height * 0.18
+        radius = 25
+
+        if self.green_active:
+            color = arcade.color.GREEN
+        else:
+            color = arcade.color.RED
+
+        arcade.draw_circle_filled(x, y, radius, color)
+        arcade.draw_circle_outline(x, y, radius, arcade.color.BLACK, 3)
+
+    def draw(self):
+        arcade.draw_lrbt_rectangle_filled(
+            0,
+            self.game.window_width,
+            0,
+            self.game.window_height,
+            arcade.color.WHITE
+        )
+
+        self.draw_traffic_light()
+        self.ui.draw()
+
+        if self.state == "power_spam":
+            center_x = self.game.window_width // 2
+            center_y = self.game.window_height // 2
+
+            power_name = self.power_attack_data[self.power_attack_index]["name"]
+
+            shake_text = arcade.Text(
+                "SHAKE!",
+                center_x,
+                center_y + 80,
+                arcade.color.BLACK,
+                54,
+                anchor_x="center"
+            )
+            shake_text.draw()
+
+            attack_text = arcade.Text(
+                power_name,
+                center_x,
+                center_y + 25,
+                arcade.color.BLACK,
+                28,
+                anchor_x="center"
+            )
+            attack_text.draw()
+
+            count_text = arcade.Text(
+                f"SPACE: {self.power_spam_count}",
+                center_x,
+                center_y - 25,
+                arcade.color.BLACK,
+                28,
+                anchor_x="center"
+            )
+            count_text.draw()
+
+            time_text = arcade.Text(
+                f"Time left: {max(0.0, self.power_spam_timer):.1f}",
+                center_x,
+                center_y - 70,
+                arcade.color.BLACK,
+                24,
+                anchor_x="center"
+            )
+            time_text.draw()
+
+        if self.current_enemy is not None and self.state not in ("inactive", "finished"):
+            hp_text = arcade.Text(
+                f"Enemy HP: {max(0, self.current_enemy_health)} / {self.current_enemy['max_hp']}",
+                self.game.window_width // 2,
+                self.game.window_height - 80,
+                arcade.color.BLACK,
+                24,
+                anchor_x="center"
+            )
+            hp_text.draw()
+
+        if self.feedback_text != "":
+            feedback = arcade.Text(
+                self.feedback_text,
+                self.game.window_width // 2,
+                self.game.window_height * 0.28,
+                arcade.color.BLACK,
+                28,
+                anchor_x="center"
+            )
+            feedback.draw()
+
+        if self.state == "player_turn" and not self.power_menu.enabled and not self.levelup_pending:
+            self.action_menu.draw()
+
+        if self.power_menu.enabled:
+            arcade.draw_lrbt_rectangle_filled(
+                0,
+                self.game.window_width,
+                0,
+                self.game.window_height,
+                (0, 0, 0, 180)
+            )
+            self.power_menu.draw()
+
+        if self.levelup_pending:
+            arcade.draw_lrbt_rectangle_filled(
+                0,
+                self.game.window_width,
+                0,
+                self.game.window_height,
+                (0, 0, 0, 180)
+            )
+            self.levelup_menu.draw()
+
+    def on_key_press(self, key, key_modifiers):
+        if self.state == "power_spam":
+            if key == arcade.key.SPACE:
+                self.power_spam_count += 1
+            return
+
+        if self.levelup_pending:
+            self.levelup_menu.on_key_press(key, key_modifiers)
+            return
+
+        if self.power_menu.enabled:
+            self.power_menu.on_key_press(key, key_modifiers)
+            return
+
+        if self.state == "player_turn":
+            self.action_menu.on_key_press(key, key_modifiers)
+            return
+
+        if key == arcade.key.SPACE:
+            if self.state == "player_timing_attack":
+                if self.green_active:
+                    self.finish_attack_timing(missed=False)
+                else:
+                    print("Too early")
+                    self.finish_attack_timing(missed=True)
+
+            elif self.state == "enemy_timing_block":
+                if self.green_active:
+                    self.block_success = True
+                    self.resolve_enemy_attack(blocked=True)
+                else:
+                    print("Too early")
+                    self.resolve_enemy_attack(blocked=False)
+
+"""
+import arcade
+import arcade.gui
 
 class BattleScreen:
     def __init__(self, game):
@@ -572,4 +1099,4 @@ class BattleScreen:
                     self.resolve_enemy_attack(blocked=True)
                 else:
                     print("Too early")
-                    self.resolve_enemy_attack(blocked=False)
+                    self.resolve_enemy_attack(blocked=False)"""
