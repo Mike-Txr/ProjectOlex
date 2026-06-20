@@ -147,14 +147,14 @@ class BattleScreen:
         data = self.power_attack_data[index]
         cost = data["power_cost"]
 
-        if self.game.power < cost:
+        if self.game.player.power < cost:
             self.feedback_text = "NOT ENOUGH POWER!"
             self.feedback_timer = self.feedback_duration
             print("Zu wenig Power für diese Attacke")
             self.power_menu.enable()
             return
 
-        self.game.set_power(self.game.power - cost)
+        self.game.player.set_power(self.game.player.power - cost)
 
         self.power_attack_index = index
         self.power_spam_count = 0
@@ -210,21 +210,21 @@ class BattleScreen:
             return
 
         if choice_index == 0:
-            self.game.max_health += 5
-            self.game.set_health(self.game.max_health)
+            self.game.player.max_health += 5
+            self.game.player.set_health(self.game.player.max_health)
             print("Max HP erhöht")
 
         elif choice_index == 1:
-            self.game.max_power += 10
-            self.game.set_power(self.game.max_power)
+            self.game.player.max_power += 10
+            self.game.player.set_power(self.game.player.max_power)
             print("Max Power erhöht")
 
         elif choice_index == 2:
-            self.game.attack += 2
+            self.game.player.attack += 2
             print("Attack erhöht")
 
-        self.game.set_health(self.game.max_health)
-        self.game.set_power(self.game.max_power)
+        self.game.player.set_health(self.game.player.max_health)
+        self.game.player.set_power(self.game.player.max_power)
         
         self.levelup_pending = False
         self.state = "inactive"
@@ -331,7 +331,7 @@ class BattleScreen:
             self.feedback_text = "MISS!"
 
         self.feedback_timer = self.feedback_duration
-        self.game.set_health(self.game.health - damage)
+        self.game.player.set_health(self.game.player.health - damage)
         print("Gegner macht", damage, "Schaden")
 
         self.state = "player_turn"
@@ -345,15 +345,15 @@ class BattleScreen:
 
     def end_battle(self, win=False):
         print("Battle beendet:", "Sieg" if win else "Niederlage")
-        old_level = self.game.level
+        old_level = self.game.player.level
 
-        self.game.set_coins(self.game.coins + self.current_enemy["coin_reward"])
-        self.game.set_xp(self.game.current_xp + self.current_enemy["xp_reward"])
+        self.game.player.set_coins(self.game.player.coins + self.current_enemy["coin_reward"])
+        self.game.player.set_xp(self.game.player.current_xp + self.current_enemy["xp_reward"])
 
         self.action_menu.disable()
         self.power_menu.disable()
 
-        if self.game.level > old_level:
+        if self.game.player.level > old_level:
             self.levelup_pending = True
             self.state = "levelup"
             self.levelup_menu.reset()

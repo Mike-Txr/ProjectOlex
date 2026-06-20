@@ -52,7 +52,7 @@ def setup_hud(self):
     self.hud_root.add(self.heart_row, anchor_x="left", anchor_y="top", align_x=self.health_panel_x + self.health_panel_width * 0.08, align_y=-5,)
     self.heart_row.add(arcade.gui.UIImage(texture=arcade.load_texture("assets/heart_symbol.png"), width=35, height=35))
 
-    self.health_label = arcade.gui.UILabel(text=f" {self.health} / {self.max_health}", font_size=25, text_color=arcade.color.WHITE,)
+    self.health_label = arcade.gui.UILabel(text=f" {self.player.health} / {self.player.max_health}", font_size=25, text_color=arcade.color.WHITE,)
     self.heart_row.add(self.health_label)
 
     #create the content of the power panel
@@ -60,7 +60,7 @@ def setup_hud(self):
     self.hud_root.add(self.power_row, anchor_x="left", anchor_y="top", align_x=self.power_panel_x + self.power_panel_width * 0.08, align_y=-5)
     self.power_row.add(arcade.gui.UIImage(texture=arcade.load_texture("assets/wonster.png"), width=25, height=35))
 
-    self.power_label = arcade.gui.UILabel(text=f" {self.power} / {self.max_power}", font_size=25, text_color=arcade.color.WHITE,)
+    self.power_label = arcade.gui.UILabel(text=f" {self.player.power} / {self.player.max_power}", font_size=25, text_color=arcade.color.WHITE,)
     self.power_row.add(self.power_label)
 
 
@@ -73,7 +73,7 @@ def setup_hud(self):
     self.level_bar_fill = arcade.gui.UISpace(width=0, height=20, color=(251, 245, 219, transparency))
     self.hud_root.add(self.level_bar_bg, anchor_x="left", anchor_y="top", align_x=self.level_panel_x + 50, align_y=-15)
     self.hud_root.add(self.level_bar_fill, anchor_x="left", anchor_y="top", align_x=self.level_panel_x + 50, align_y=-15)
-    self.level_label = arcade.gui.UILabel(text=f"{self.level}", font_size=25, text_color=arcade.color.WHITE,)
+    self.level_label = arcade.gui.UILabel(text=f"{self.player.level}", font_size=25, text_color=arcade.color.WHITE,)
     self.hud_root.add(self.level_label, anchor_x="left", anchor_y="top", align_x=self.level_panel_x + self.level_panel_width - 40, align_y=-5)
 
     #create the content of the coins panel
@@ -81,5 +81,5 @@ def setup_hud(self):
     self.hud_root.add(self.coin_row, anchor_x="left", anchor_y="top", align_x=self.coins_panel_x + self.coins_panel_width * 0.08, align_y=-5)
     self.coin_row.add(arcade.gui.UIImage(texture=arcade.load_texture("assets/daddycoin.png"), width=35, height=35))
 
-    self.coins_label = arcade.gui.UILabel(text=f" {self.coins}", font_size=25, text_color=arcade.color.WHITE,)
+    self.coins_label = arcade.gui.UILabel(text=f" {self.player.coins}", font_size=25, text_color=arcade.color.WHITE,)
     self.coin_row.add(self.coins_label)
