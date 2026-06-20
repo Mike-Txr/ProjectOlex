@@ -5,11 +5,9 @@ import functions.settings as settings
 
 class speech_box():
     def __init__(self, entity, scale, game):
-        
-        self.scale = scale
 
-        wid = settings.INGAME_WIDTH * self.scale
-        hei = settings.INGAME_HEIGHT * self.scale
+        wid = settings.INGAME_WIDTH * scale
+        hei = settings.INGAME_HEIGHT * scale
 
         self.game = game
         self.game.current_dialogue = True
@@ -123,8 +121,8 @@ class speech_box():
     
     def draw(self):
 
-        wid = settings.INGAME_WIDTH * self.scale
-        hei = settings.INGAME_HEIGHT * self.scale
+        wid = settings.INGAME_WIDTH * self.game.either_scale
+        hei = settings.INGAME_HEIGHT * self.game.either_scale
 
         arcade.draw_rect_filled(
             self.text_box,
