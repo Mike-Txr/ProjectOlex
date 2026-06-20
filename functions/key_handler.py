@@ -23,15 +23,8 @@ def key_press(key, key_modifiers, game):
         return
         
     if game.current_dialogue:
-        if key == arcade.key.ENTER:
+        if key == arcade.key.SPACE:
             game.dialogue_box.next_line(game)
-
-
-    #debug: opening the dialogue interface
-    if key == arcade.key.Q:
-        game.dialogue_box = dia_int.speech_box(game.entity_list[1], game.either_scale, game)
-        game.current_dialogue = True
-        return
     
 
     if key == arcade.key.ESCAPE and not game.game_over:#only allow pausing if the game is not over (not game.game_over)
