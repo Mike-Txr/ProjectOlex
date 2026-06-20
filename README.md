@@ -2,15 +2,11 @@
 
 **Daddy's First Christmas** is a turn-based role-playing game developed in Python using the Arcade framework.
 
-This school project serves as a prototype for a larger game concept, and many features, mechanics, and story elements are not yet implemented.
-
----
+This school project serves as a **prototype** for a larger game concept, and many features, mechanics, and story elements are not yet implemented.
 
 ## Story
 
 Insert Story when ready
-
----
 
 ## Gameplay
 
@@ -26,10 +22,10 @@ Battles take place in a turn-based combat system where players must choose their
 
 Available combat mechanics include:
 
-* Standard-Attack
-* Power-Attacks
-* Items
-* Blocking
+* **Standard-Attack**
+* **Power-Attacks**
+* **Items**
+* **Blocking**
 
 The more you fight, the stronger you will get.
 
@@ -42,5 +38,3 @@ The player character uses several attributes during gameplay, including:
 * **Attack** – Influences the damage dealt to enemies.
 
 Each level-up gives you the opportunity to increase one of these stats.
-
----
