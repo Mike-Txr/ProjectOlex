@@ -56,71 +56,21 @@ class MyGame(arcade.Window):
 
         #Dialogue Interface
         self.current_dialogue = False
-
-        #######Main Game Variables#######
-        self.max_health = 10#max_health variable, could be changed throughout the game
-        self.health = self.max_health#current health variable, starts with max health
-
-        self.max_power = 50#max_power variable, could be changed throughout the game
-        self.power = self.max_power#current power variable, starts with max power
-
-        self.attack = 5#variable for the attack stat, could be changed throughout the game
-
-        self.level = 1#variable for the current level, starts at 1
-        self.levelup = 100#variable, level up will be reached at 100
-        self.current_xp = 90#current experience points variable, starts with 50
-
-        self.coins = 10#variable for coins, could be changed throughout the game
-
-
         self.current_screen = "TestMap.tmx"
 
         #Create a player object based on the player class from the player file
         self.player = player.Player(
-            settings.INGAME_WIDTH*0.5*self.x_scale,
-            settings.INGAME_HEIGHT*0.5*self.y_scale,
-            self.either_scale)
+            settings.INGAME_WIDTH * 0.5 * self.x_scale,
+            settings.INGAME_HEIGHT * 0.5 * self.y_scale,
+            self.either_scale,
+            self
+        )
 
         misc.load_scene(self, self.current_screen)
 
 
         UI.setup_hud(self)#load the function to set up the HUD (health, power, etc.) from UI.py
-        self.set_xp(self.current_xp)
-    
-#############################These functions should maybe be moved to the corresponding .py files, but for now they stay here until more game logic is developed############
-
-    #function to set the health of the player, which also updates the health label
-    def set_health(self, value: int):
-        self.health = max(0, min(self.max_health, value))
-        self.health_label.text = f"{self.health} / {self.max_health}"
-
-    def set_power(self, value: int):
-        self.power = max(0, min(self.max_power, value))
-        self.power_label.text = f"{self.power} / {self.max_power}"
-
-    def set_xp(self, value: int):
-        self.current_xp = max(0, value)
-
-
-        while self.current_xp >= self.levelup:
-            self.current_xp -= self.levelup
-            self.level += 1
-            print("Level up! Aktuelles Level:", self.level)
-        
-        if self.level > 0:
-            progress = self.current_xp / self.levelup
-        else:
-            progress = 0
-
-        progress = max(0, min(1, progress))#make sure the progress is between 0 and 1
-        self.level_label.text = f"{self.level}"
-        bar_width = max(1, self.level_panel_width - 100)#make sure the bar width is at least 1 to avoid errors
-        self.level_bar_fill.width = max(1, int(bar_width * progress))
-
-    def set_coins(self, value: int):
-        self.coins = max(0, value)
-        self.coins_label.text = f"{self.coins}"
-
+        self.player.set_xp(self.player.current_xp)
 
     def on_draw(self):
         """
@@ -167,7 +117,7 @@ class MyGame(arcade.Window):
         else:
             self.menu_screen.disable()#Disable the game over screen when the game is not over
 
-        if self.health <= 0:#if the player's health is 0 or less, trigger the game over state
+        if self.player.health <= 0:#if the player's health is 0 or less, trigger the game over state
             self.game_over = True
 
         #game over screen
