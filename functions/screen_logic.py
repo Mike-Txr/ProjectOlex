@@ -36,6 +36,9 @@ def correct_player_pos(player, collision, scale):
         player.center_x = 384*scale - 0.2*player.width
 
 def counter_correct_player_pos(player, collision, scale, orig_coords):
+    #this is used if the player tries to change screen, but isn't actually allowed to
+    #currently this is only the case if there is an obstacle on the screen he's trying to change to
+
     player.center_x = orig_coords[0]
     player.center_y = orig_coords[1]
     if collision.properties["side"] == "top":

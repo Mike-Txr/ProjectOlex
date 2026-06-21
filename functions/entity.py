@@ -5,25 +5,27 @@ import json
 
 class Entity(arcade.Sprite):
 
-    def __init__(self, x, y, scale, file):
+    def __init__(self, x, y, scale, file): #this init-function is not currently used, but might be useful later
         super().__init__("assets/"+file, scale = scale)
         self.center_x = x
         self.center_y = y
-    
-    #Used to convert an arcade.Sprite object to an Entity object
-    @classmethod
-    def from_sprite(cls, sprite):
-        obj = cls.__new__(cls)
 
-        arcade.Sprite.__init__(
+
+    @classmethod #this declares the following method to be a "class method", meaning it's called on the class itself instead of an instance of it
+    def from_sprite(cls, sprite): #Used to convert an arcade.Sprite object to an Entity object
+        obj = cls.__new__(cls) #create a new instance of our class (saved in cls)
+
+        arcade.Sprite.__init__( #initialize the new object as a sprite, giving us all the basic features of a sprite (as the Entity class is a subclass of arcade.Sprite)
             obj,
             sprite.texture,
             scale=sprite.scale
         )
 
+        #these are the new properties, unique to Entity and it's subclasses
         obj.center_x = sprite.center_x
         obj.center_y = sprite.center_y
 
+        #look at the properties of the original sprite and save them to our object. the sprite itself gets these properties from it's tmx-file (can be viewed in Tiled)
         obj.properties = getattr(sprite, "properties", {})
 
         return obj
@@ -67,14 +69,15 @@ class NPC(Entity):
         for stat, value in stats.items():
             setattr(obj, stat, value)
 
+        #when the player collides with an NPC, its dialogue file should determine what happens next
         obj.on_collision = "dialogue"
 
         return obj
     
 
-    def collision(self, game):
+    def collision(self, game): #called in main.py when the player collides with an NPC
         if self.on_collision == "dialogue":
-            game.dialogue_box = dia_int.speech_box(self, game.either_scale, game)
-            self.on_collision = "nothing"
+            game.dialogue_box = dia_int.speech_box(self, game.either_scale, game) #let dialogue_interface.py handle everything dialogue-related
+            self.on_collision = "nothing" #after interacting with the NPC once, it can not be interacted with again
 
     

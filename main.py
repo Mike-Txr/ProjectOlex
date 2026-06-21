@@ -38,8 +38,8 @@ class MyGame(arcade.Window):
 
 
     def setup(self):
-        """ Set up the game variables. Call to re-start the game. """
-        # Create your sprites and sprite lists here
+        #all game variables are set up here
+        #it is automatically called when the game first starts, but can also be manually called to restart the game
 
         #Pause menu
         self.paused = False#Variable to hold paused state. Set to True to pause the game, False to unpause.
@@ -111,11 +111,7 @@ class MyGame(arcade.Window):
 
 
     def on_update(self, delta_time):
-        """
-        All the logic to move, and the game logic goes here.
-        Normally, you'll call update() on the sprite lists that
-        need it.
-        """
+        #function to update everything in the game, called every frame
 
         #menu
         if self.menu:#if the menu variable is true, enable the menu screen and skip the rest of the update function
@@ -155,7 +151,7 @@ class MyGame(arcade.Window):
         if self.current_dialogue: #if there is currently a dialogue_box
             return #skip the rest of on_update() so the game is paused
 
-        directions = playmov.calc_movement(self.player)
+        directions = playmov.calc_movement()
         directions["x"] *= self.x_scale
         directions["y"] *= self.y_scale
         playmov.move_player(self.player, directions, self.scene["Obstacles"])
@@ -188,53 +184,25 @@ class MyGame(arcade.Window):
 
         self.scene.update(delta_time)
 
+
+
     def on_key_press(self, key, key_modifiers):
-        """
-        Called whenever a key on the keyboard is pressed.
-        """
 
-        
         key_handler.key_press(key, key_modifiers,self)
-
-
-
-
-        
+      
 
     def on_key_release(self, key, key_modifiers):
-        """
-        Called whenever the user lets off a previously pressed key.
-        """
-
+        
         key_handler.key_release(key)
 
 
-    def on_mouse_motion(self, x, y, delta_x, delta_y):
-        """
-        Called whenever the mouse moves.
-        """
-        pass
-
-    def on_mouse_press(self, x, y, button, key_modifiers):
-        """
-        Called when the user presses a mouse button.
-        """
-        
-        pass
-
-    def on_mouse_release(self, x, y, button, key_modifiers):
-        """
-        Called when a user releases a mouse button.
-        """
-        pass
-
 
 def main():
-    """ Main function """
+    #function to run the game
     game = MyGame(1920, 1080, settings.SCREEN_TITLE)
     game.setup()
     arcade.run()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": #if this file is executed, run the game
     main()
