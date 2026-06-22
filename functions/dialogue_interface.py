@@ -80,7 +80,8 @@ class speech_box():
                               "attack": self.entity.attack,
                               "red_time": self.entity.red_time,
                               "xp_reward": self.entity.xp_reward,
-                              "coin_reward": self.entity.coin_reward}
+                              "coin_reward": self.entity.coin_reward,
+                              "texture": self.entity.texture}
                 game.battle = True
                 game.battleview.start_battle(enemy_data) #trigger combat
                 continue #skip this line and advance to the next one
