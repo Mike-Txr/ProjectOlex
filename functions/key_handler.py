@@ -65,7 +65,7 @@ def key_press(key, key_modifiers, game): #function to handle all key press event
     if key == arcade.key.B:#################################only for debugging, will be removed later, triggers the battle view when B is pressed
         #enemy data will be part of a class later
         if not game.battle:
-            enemy_data = {"max_hp": 50, "attack": 5, "red_time": 1.0, "xp_reward": 10, "coin_reward": 10, "image": "assets/NPC.png"}#########
+            enemy_data = {"max_hp": 50, "attack": 5, "red_time": 1.0, "xp_reward": 10, "coin_reward": 10, "texture": game.entity_list[0].texture}#########
             game.battle = True
             game.battleview.start_battle(enemy_data)
             

@@ -182,9 +182,9 @@ class BattleScreen:
         self.power_spam_count = 0
         self.power_spam_timer = 0.0
 
-        #if image is a part of self.current_enemy (normally always is), load texture and set position
-        if "image" in self.current_enemy:
-            self.current_enemy_texture = arcade.load_texture(self.current_enemy["image"])
+        #if texture is a part of self.current_enemy (normally always is), load texture and set position
+        if "texture" in self.current_enemy:
+            self.current_enemy_texture = self.current_enemy["texture"]
             self.enemy_sprite.texture = self.current_enemy_texture
             self.enemy_sprite.center_x = self.game.window_width * 0.8
             self.enemy_sprite.center_y = self.game.window_height * 0.35
