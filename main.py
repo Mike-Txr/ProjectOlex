@@ -59,7 +59,8 @@ class MyGame(arcade.Window):
         self.current_dialogue = False
         self.current_screen = "TestMap.tmx"
 
-        self.screen_lock = False#---black---
+        #variables for small black screen after npc respawns
+        self.screen_lock = False
         self.screen_lock_timer = 0.0
 
         #Create a player object based on the player class from the player file
@@ -88,8 +89,8 @@ class MyGame(arcade.Window):
         # the screen to the background color, and erase what we drew last frame.
         self.clear()
 
-        if self.screen_lock:#---black---
-            print("Test")
+        #draw the black screen
+        if self.screen_lock:
             arcade.draw_lrbt_rectangle_filled(
                 0,
                 self.window_width,
@@ -97,7 +98,7 @@ class MyGame(arcade.Window):
                 self.window_height,
                 (0, 0, 0, 255)
             )
-            return#---black---
+            return
         
         # Call draw() on all your sprite lists below
         self.scene.draw(pixelated=True)
@@ -135,7 +136,8 @@ class MyGame(arcade.Window):
         else:
             self.menu_screen.disable()#Disable the game over screen when the game is not over
 
-        if self.screen_lock:#---black---
+        #if black screen count down when it disappears again
+        if self.screen_lock:
             self.screen_lock_timer -= delta_time
             if self.screen_lock_timer <= 0:
                 self.screen_lock = False

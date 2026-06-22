@@ -100,11 +100,11 @@ class BattleMenu:
             return False
 
         #navigate through the buttons
-        if key in (arcade.key.W, arcade.key.UP):
+        if key == arcade.key.W:
             self.selected_index = (self.selected_index - 1) % len(self.buttons)
             return True
 
-        if key in (arcade.key.S, arcade.key.DOWN):
+        if key == arcade.key.S:
             self.selected_index = (self.selected_index + 1) % len(self.buttons)
             return True
 

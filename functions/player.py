@@ -33,6 +33,8 @@ class Player(entity.Entity):
         #"inventory" --> the current number
         self.sausages = 5#variable for sausages, fills up hearts
         self.pills = 5#variable for pills, fills up power
+        self.sausage_heal_amount = 5#how much a sausage heals
+        self.pill_power_amount = 10#how much a pill restores power
 
     #function to set the health of the player, which also updates the health label
     def set_health(self, value: int):
@@ -83,25 +85,25 @@ class Player(entity.Entity):
         print(f"Added {amount} pill(s). Total pills: {self.pills}")
 
     #function to use a sausage to increase current health
-    def use_sausage(self, amount: int = 5):
+    def use_sausage(self):
         if self.sausages <= 0:#if ther are no, cant be used
             return False
         if self.health >= self.max_health:#if the health is already full, cant be used
             return False
 
         self.sausages -= 1
-        self.set_health(self.health + amount)#value, can be easily modified
+        self.set_health(self.health + self.sausage_heal_amount)#value, can be easily modified
         return True
 
     #function to use a pill to increase current power, same as sausages but with power
-    def use_pill(self, amount: int = 10):
+    def use_pill(self):
         if self.pills <= 0:
             return False
         if self.power >= self.max_power:
             return False
 
         self.pills -= 1
-        self.set_power(self.power + amount)
+        self.set_power(self.power + self.pill_power_amount)
         return True
     
     def update_texture(self): #update the player texture based on the direction the player is facing

@@ -64,8 +64,8 @@ class speech_box():
 
         self.next_line(game)
 
-    def trigger_black_screen(self, game, duration=0.3):#---black---
-        print("Test")
+    #function to draw black screen
+    def trigger_black_screen(self, game, duration=0.3):
         game.screen_lock = True
         game.screen_lock_timer = duration
 
@@ -98,8 +98,7 @@ class speech_box():
                 self.entity.kill()
                 if self.entity in game.entity_list:
                     game.entity_list.remove(self.entity)
-                print("Hallo?")
-                self.trigger_black_screen(game, 0.3)#---black---
+                self.trigger_black_screen(game, 0.3)#call function for black screen 
                 self.kill()
                 break
 

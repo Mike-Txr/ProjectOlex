@@ -16,7 +16,8 @@ def key_press(key, key_modifiers, game): #function to handle all key press event
         game.menu_screen.on_key_press(key, key_modifiers)
         return
     
-    if game.screen_lock:#---black---
+    #if black screen dont accept inputs
+    if game.screen_lock:
         return
     
     if game.paused:

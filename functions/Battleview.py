@@ -142,9 +142,6 @@ class BattleScreen:
         self.item_preview_list = arcade.SpriteList()#sprite list to draw it later
         self.item_preview_list.append(self.item_preview)
 
-        self.item_heal_amount = 5#how much sausage heals, can be easily modified
-        self.item_power_amount = 10#how much pills regenerate, can be easily modified
-
         #again call Battlemenu.py
         self.items_menu = BattleMenu(
             game=self.game,
@@ -316,15 +313,15 @@ class BattleScreen:
         used = False
 
         if item_name == "sausages":#heals with the right amount and displays text
-            used = self.game.player.use_sausage(self.item_heal_amount)
+            used = self.game.player.use_sausage()
             if used:
-                self.feedback_text = f"Used Sausage! +{self.item_heal_amount} HP"
+                self.feedback_text = f"Used Sausage! +{self.game.player.sausage_heal_amount} HP"
                 self.feedback_timer = self.feedback_duration
 
         elif item_name == "pills":#regenerates the right amount and displays text
-            used = self.game.player.use_pill(self.item_power_amount)
+            used = self.game.player.use_pill()
             if used:
-                self.feedback_text = f"Used Pill! +{self.item_power_amount} Power"
+                self.feedback_text = f"Used Pill! +{self.game.player.pill_power_amount} Power"
                 self.feedback_timer = self.feedback_duration
 
         if not used:#can either have no item or no effect

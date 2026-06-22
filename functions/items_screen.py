@@ -137,22 +137,26 @@ class ItemsScreen:#class for the buttons
         elif symbol == arcade.key.ESCAPE and self.show_items:
             self.close_items()
 
+        elif symbol == arcade.key.I:
+            self.close_items()
+            return
+
 
     #function to activate the selected button and either use an item or close the screen
     def activate_selected(self):
         if self.selected_index == 0:
-            used = self.game.player.use_sausage(5)
+            used = self.game.player.use_sausage()
             if used:
-                self.feedback_text = "Used Sausage! +5 HP"
+                self.feedback_text = f"Used Sausage! +{self.game.player.sausage_heal_amount} HP"
                 self.feedback_timer = self.feedback_duration
             else:
                 self.feedback_text = "NO SAUSAGE / NO EFFECT!"
                 self.feedback_timer = self.feedback_duration
 
         elif self.selected_index == 1:
-            used = self.game.player.use_pill(10)
+            used = self.game.player.use_pill()
             if used:
-                self.feedback_text = "Used Pill! +10 Power"
+                self.feedback_text = f"Used Pill! +{self.game.player.pill_power_amount} Power"
                 self.feedback_timer = self.feedback_duration
             else:
                 self.feedback_text = "NO PILL / NO EFFECT!"
