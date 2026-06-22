@@ -1,0 +1,13 @@
+[
+    ["NPC", "Hello!"],
+    ["Player", "How are you?"],
+    ["NPC", "I'm very happy. That is why I am going to give you two pills and a sausage!"],
+    
+    ["Item", "pills", 2],
+    ["Item", "sausages", 1],
+
+    ["NPC", "hope you like them :)"],
+    ["Player", "thank you :)"],
+
+    "disappear"
+]
