@@ -16,7 +16,7 @@ class BattleMenu:
         subtitle_text: str | None = None,#text displayed above the buttons, can be None if no text should be displayed
         button_width: int = 300,#width of the buttons in pixels
         button_spacing: int = 20,#space between buttons in pixels
-        arrow_path: str = "assets/arrow.png",#path to the arrow image that points to the selected button
+        arrow_path: str = "assets/arrow_black.png",#path to the arrow image that points to the selected button
         arrow_scale: float = 0.1,#scale of the arrow that points to the selected button
         escape_index: int | None = None,#index of the button that should be activated when ESC is pressed, just used for going back in a submenu
         allow_space: bool = True,#when SPACE is allowed to select something (just for power because it is easier to spam after that)

@@ -18,13 +18,36 @@ class BattleScreen:
         self.game = game#variable game, to access the main game class and its attributes like health, window_width, etc.
         self.ui = arcade.gui.UIManager()#set up UIManager
         self.root = arcade.gui.UIAnchorLayout()#set up the root layout to anchor the elements
+
+        self.battle_background_texture = arcade.load_texture("assets/battle_background.png")#load background for battle
+        self.background_anchor = arcade.gui.UIAnchorLayout()
+
+        self.background_img = arcade.gui.UIImage(
+            texture=self.battle_background_texture,
+            width=self.game.window_width,
+            height=self.game.window_height
+        )
+
+        self.background_anchor.add(self.background_img, anchor_x="center", anchor_y="center")
+        self.ui.add(self.background_anchor)
+
         self.ui.add(self.root)#anchor becomes part of self.ui
 
-        self.current_enemy = None#variable to store the current enemy, which will be set when start_battle is called
+        self.turn_indicator_sprite = arcade.Sprite("assets/arrow_turn.png", scale=0.12)
+        self.turn_indicator_list = arcade.SpriteList()
+        self.turn_indicator_list.append(self.turn_indicator_sprite)
 
-        #debug text, not relevant#############################################################
-        self.title_label = arcade.gui.UILabel(text="Battle!", font_size=40, text_color=arcade.color.WHITE)
-        self.root.add(self.title_label, anchor_x="center", anchor_y="center")
+        self.turn_indicator_visible = False
+
+        self.current_enemy_texture = None
+
+        self.enemy_sprite = arcade.Sprite()
+        self.enemy_sprite.scale = 8.0
+
+        self.enemy_sprite_list = arcade.SpriteList()
+        self.enemy_sprite_list.append(self.enemy_sprite)
+
+        self.current_enemy = None#variable to store the current enemy, which will be set when start_battle is called
 
         #important variables for the battle logic
         self.state = "inactive" #variable to track the state of the battle screen
@@ -144,7 +167,6 @@ class BattleScreen:
         self.current_enemy = enemy
         self.current_enemy_health = self.current_enemy["max_hp"]
 
-        self.title_label.text = "Battle!"#####################will be removed later?
         self.state = "player_turn"#just indicates that the player is the first to act, will be used for the battle logic
         self.timer = 0.0#set timer for the battle
         self.cue_time = 0.0#set cue time for the battle, will be used for the timing mechanic
@@ -159,6 +181,14 @@ class BattleScreen:
         self.power_spam_count = 0
         self.power_spam_timer = 0.0
 
+        if "image" in self.current_enemy:
+            self.current_enemy_texture = arcade.load_texture(self.current_enemy["image"])
+            self.enemy_sprite.texture = self.current_enemy_texture
+            self.enemy_sprite.center_x = self.game.window_width * 0.8
+            self.enemy_sprite.center_y = self.game.window_height * 0.35
+        else:
+            self.current_enemy_texture = None
+
         # reset the battle menus and enable the action menu for the player to choose their action
         self.action_menu.reset()
         self.power_menu.reset()
@@ -171,6 +201,9 @@ class BattleScreen:
         self.items_menu.disable()
 
         self.levelup_pending = False#levelup_pending is set to false, because the player has not leveled up yet
+
+    def submenu_open(self):
+        return self.power_menu.enabled or self.items_menu.enabled or self.levelup_pending
 
     def start_standard_attack(self):#function to start the standard attack
         if self.state != "player_turn":
@@ -414,10 +447,10 @@ class BattleScreen:
 
         if missed:#if missed the damage is way lower, give a message to the player
             damage = 2
-            self.feedback_text = "MISS!"
+            self.feedback_text = f"MISS! {damage} DMG"
         else:
             damage = 10
-            self.feedback_text = "PERFECT!"
+            self.feedback_text = f"PERFECT! {damage} DMG"
 
         self.feedback_timer = self.feedback_duration
 
@@ -442,9 +475,9 @@ class BattleScreen:
 
         if blocked or self.block_success:#damage way lower if blocked, give a message to the player
             damage = max(1, int(damage * 0.3))
-            self.feedback_text = "PERFECT!"
+            self.feedback_text = f"PERFECT! {damage} DMG TAKEN"
         else:
-            self.feedback_text = "MISS!"
+            self.feedback_text = f"MISS! {damage} DMG TAKEN"
 
         self.feedback_timer = self.feedback_duration
         self.game.player.set_health(self.game.player.health - damage)
@@ -504,20 +537,32 @@ class BattleScreen:
         arcade.draw_circle_filled(x, y, radius, color)#easy funciton provided by arcade
         arcade.draw_circle_outline(x, y, radius, arcade.color.BLACK, 3)
 
+    def update_turn_indicator(self):
+        if self.state in ("player_turn", "player_timing_attack", "power_spam"):
+            self.turn_indicator_visible = True
+            self.turn_indicator_sprite.center_x = self.game.window_width * 0.2
+            self.turn_indicator_sprite.center_y = self.game.window_height * 0.6
+
+        elif self.state in ("enemy_turn", "enemy_timing_block"):
+            self.turn_indicator_visible = True
+            self.turn_indicator_sprite.center_x = self.game.window_width * 0.8
+            self.turn_indicator_sprite.center_y = self.game.window_height * 0.6
+
+        else:
+            self.turn_indicator_visible = False
+
     #draw function
     def draw(self):
-        #background, will be changed later, ............................
-        arcade.draw_lrbt_rectangle_filled(
-            0,
-            self.game.window_width,
-            0,
-            self.game.window_height,
-            arcade.color.WHITE
-        )
-
         #draw the traffic light and the UI elements, including the menus and feedback text
-        self.draw_traffic_light()
+        self.update_turn_indicator()
         self.ui.draw()
+        self.draw_traffic_light()
+
+        if self.turn_indicator_visible:
+            self.turn_indicator_list.draw()
+
+        if self.current_enemy is not None and self.current_enemy_texture is not None and self.state not in ("inactive", "finished"):
+            self.enemy_sprite_list.draw()
 
         #if power_spam is activated, draw an overlay with the power attack name, the number of times space was pressed, and the time left
         if self.state == "power_spam":
@@ -570,11 +615,12 @@ class BattleScreen:
         if self.current_enemy is not None and self.state not in ("inactive", "finished"):
             hp_text = arcade.Text(
                 f"Enemy HP: {max(0, self.current_enemy_health)} / {self.current_enemy['max_hp']}",
-                self.game.window_width // 2,
-                self.game.window_height - 80,
+                self.game.window_width - 185,
+                self.game.window_height - 250,
                 arcade.color.BLACK,
                 24,
-                anchor_x="center"
+                anchor_x="right",
+                anchor_y="center"
             )
             hp_text.draw()
 

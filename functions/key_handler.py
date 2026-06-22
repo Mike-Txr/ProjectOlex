@@ -32,9 +32,21 @@ def key_press(key, key_modifiers, game): #function to handle all key press event
         if key == arcade.key.DOWN:
             game.dialogue_box.next_line(game)
     
+    if game.battle:
+        if key == arcade.key.ESCAPE:
+            if game.battleview.submenu_open():
+                game.battleview.on_key_press(key, key_modifiers)
+                return
+            else:
+                game.paused = True
+                return
+
+        game.battleview.on_key_press(key, key_modifiers)
+        return
 
     if key == arcade.key.ESCAPE and not game.game_over:#only allow pausing if the game is not over (not game.game_over)
             game.paused = True
+            return
 
     if key == arcade.key.I:
         if game.menu or game.game_over or game.paused or game.battle or game.current_dialogue:
@@ -53,7 +65,7 @@ def key_press(key, key_modifiers, game): #function to handle all key press event
     if key == arcade.key.B:#################################only for debugging, will be removed later, triggers the battle view when B is pressed
         #enemy data will be part of a class later
         if not game.battle:
-            enemy_data = {"max_hp": 50, "attack": 5, "red_time": 1.0, "xp_reward": 10, "coin_reward": 10}#########
+            enemy_data = {"max_hp": 50, "attack": 5, "red_time": 1.0, "xp_reward": 10, "coin_reward": 10, "image": "assets/NPC.png"}#########
             game.battle = True
             game.battleview.start_battle(enemy_data)
             
