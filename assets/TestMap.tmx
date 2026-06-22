@@ -38,14 +38,14 @@
  <objectgroup id="6" name="Entities">
   <object id="12" gid="4" x="168" y="72" width="24" height="24">
    <properties>
-    <property name="dialogue" value="combat.json"/>
+    <property name="dialogue" value="dialogue+item.json"/>
     <property name="stats" value="normal_enemy.json"/>
     <property name="type" value="npc"/>
    </properties>
   </object>
   <object id="13" gid="5" x="48" y="120" width="24" height="24">
    <properties>
-    <property name="dialogue" value="scene1_dario.json"/>
+    <property name="dialogue" value="dialogue+combat.json"/>
     <property name="stats" value="normal_enemy.json"/>
     <property name="type" value="npc"/>
    </properties>

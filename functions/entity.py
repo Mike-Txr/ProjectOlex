@@ -25,6 +25,8 @@ class Entity(arcade.Sprite):
         obj.center_x = sprite.center_x
         obj.center_y = sprite.center_y
 
+        obj.orig_sprite = sprite #save the original sprite, so we can delete or move it around
+
         #look at the properties of the original sprite and save them to our object. the sprite itself gets these properties from it's tmx-file (can be viewed in Tiled)
         obj.properties = getattr(sprite, "properties", {})
 
@@ -50,6 +52,8 @@ class NPC(Entity):
         #basically the Entity init
         obj.center_x = sprite.center_x
         obj.center_y = sprite.center_y
+
+        obj.orig_sprite = sprite
         
         #from here on it's NPC specific
 

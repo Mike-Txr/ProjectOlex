@@ -17,26 +17,13 @@ class speech_box():
         self.entity = entity
 
         #setting up the logic for the lines of dialogue, taken from the json file
-        self.line = 0
+        self.line = -1
         self.lines = entity.dialogue
         self.lines_amount = len(self.lines)
 
-        #check if the first line of dialogue is a combat trigger
-        combat = False
-        if self.lines[0] == "combat":
-            enemy_data = {"max_hp": self.entity.max_hp,
-                          "attack": self.entity.attack,
-                          "red_time": self.entity.red_time,
-                          "xp_reward": self.entity.xp_reward,
-                          "coin_reward": self.entity.coin_reward}
-            game.battle = True
-            game.battleview.start_battle(enemy_data)
-            combat = True
-            
-            
         #variables to hold the current text and speaker (= icon)
-        self.current_text = self.lines[0][1]
-        self.current_speaker = self.lines[0][0]
+        self.current_displayed_text = ""
+        self.current_speaker = "NPC"
 
         #from here on it's just visuals & text-handling
 
@@ -52,18 +39,8 @@ class speech_box():
         self.player_icon_list = arcade.SpriteList()
         self.player_icon_list.append(self.icon_sprite_player)
 
-        #using textwrap.wrap, because the arcade multiline feature is based on amount of characters instead of pixels and that isn't always smooth
-        wrapped_text = "\n".join(
-            textwrap.wrap(
-                self.current_text,
-                width=97,
-                break_long_words=False,
-                break_on_hyphens=False
-            )
-        )
-
         self.text_object = arcade.Text(
-            text = wrapped_text,
+            text = "",
             x = wid * 0.2,
             y = hei * 0.3,
             width = wid * 0.8,
@@ -85,18 +62,17 @@ class speech_box():
             height = box_height
         )
 
-        
-
-        if combat:
-            self.next_line(game)
+        self.next_line(game)
 
 
 
     def next_line(self, game): #function to go to the next line of dialogue, triggered by arrow down key (from key_handler.py)
-        if self.line < self.lines_amount - 1: #check if there are lines left
+        while self.line < self.lines_amount - 1: #check if there are lines left
             self.line += 1
 
-            if self.lines[self.line] == "combat": #check if this line is a combat trigger
+            curr_line = self.lines[self.line]
+
+            if curr_line == "combat": #check if this line is a combat trigger
                 enemy_data = {"max_hp": self.entity.max_hp,
                               "attack": self.entity.attack,
                               "red_time": self.entity.red_time,
@@ -104,13 +80,27 @@ class speech_box():
                               "coin_reward": self.entity.coin_reward}
                 game.battle = True
                 game.battleview.start_battle(enemy_data) #trigger combat
-                self.line += 1 #skip this line, as it is only a trigger and not actual dialogue
-            
-            #update text & current_speaker to the new line
+                continue #skip this line and advance to the next one
 
-            self.current_displayed_text = self.lines[self.line][1]
-            self.current_speaker = self.lines[self.line][0]
-            
+            elif curr_line[0] == "Item": #check if this line should give the player items
+                if curr_line[1] == "pills":
+                    game.player.add_pill(amount = curr_line[2])
+                elif curr_line[1] == "sausages":
+                    game.player.add_sausage(amount = curr_line[2])
+                continue
+
+            elif curr_line == "disappear": #check if this line is a disappear trigger
+                self.entity.orig_sprite.kill()
+                self.entity.kill()
+                if self.entity in game.entity_list:
+                    game.entity_list.remove(self.entity)
+                self.kill()
+                break
+
+            #update text & current_speaker to the new line
+            self.current_displayed_text = curr_line[1]
+            self.current_speaker = curr_line[0]
+
             self.text_object.text = "\n".join(
                 textwrap.wrap(
                     self.current_displayed_text,
@@ -119,9 +109,9 @@ class speech_box():
                     break_on_hyphens=False
                 )
             )
+            return
 
-        else: #if there are no lines left
-            self.kill() #end the dialogue
+        self.kill() #end the dialogue
     
     def draw(self): #draws everything related to the dialogue box, called in the draw-part of the main game loop in main.py
 
