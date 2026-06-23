@@ -12,7 +12,7 @@ def setup_hud(self):
 
     #parameters for the HUD panels
     panel_heights = 50
-    transparency = 100
+    transparency = 150
 
     #colors for:       Health                               Power                           Level                           Coins
     panel_colors = [(241, 130, 136, transparency), (242, 171, 81, transparency), (98, 181, 231, transparency), (81, 198, 94, transparency)]

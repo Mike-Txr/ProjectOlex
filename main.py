@@ -49,6 +49,14 @@ class MyGame(arcade.Window):
         self.game_over = False#Variable to hold game over state. Set to True to trigger the game over screen, False to disable it.
         self.game_over_screen = game_over.GameOver(self)#class for the game over screen, which is defined in game_over.py
 
+        #Create a player object based on the player class from the player file
+        self.player = player.Player(
+            settings.INGAME_WIDTH * 0.5 * self.x_scale,
+            settings.INGAME_HEIGHT * 0.5 * self.y_scale,
+            self.either_scale,
+            self
+        )
+        
         #battle view
         self.battle = False#Variable to hold battle state. Set to True to trigger the battle view, False to disable it.
         self.battle_screen = None
@@ -62,14 +70,6 @@ class MyGame(arcade.Window):
         #variables for small black screen after npc respawns
         self.screen_lock = False
         self.screen_lock_timer = 0.0
-
-        #Create a player object based on the player class from the player file
-        self.player = player.Player(
-            settings.INGAME_WIDTH * 0.5 * self.x_scale,
-            settings.INGAME_HEIGHT * 0.5 * self.y_scale,
-            self.either_scale,
-            self
-        )
 
         #items screen
         self.items_screen = items_screen.ItemsScreen(self)

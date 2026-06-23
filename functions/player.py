@@ -22,7 +22,7 @@ class Player(entity.Entity):
         self.max_power = 50#max_power variable, could be changed throughout the game
         self.power = self.max_power#current power variable, starts with max power
 
-        self.attack = 5#variable for the attack stat, could be changed throughout the game
+        self.attack = 2#variable for the attack stat, could be changed throughout the game
 
         self.level = 1#variable for the current level, starts at 1
         self.levelup = 100#variable, level up will be reached at 100

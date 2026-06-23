@@ -76,9 +76,9 @@ class BattleScreen:
 
         #All the power attacks and their data, can be easily modified
         self.power_attack_data = [
-            {"name": "Wonster flood", "target": 7,  "min_damage": 8,  "max_damage": 14, "power_cost": 5},
-            {"name": "Wonster tsunami", "target": 11, "min_damage": 10, "max_damage": 20, "power_cost": 8},
-            {"name": "Wonster hurricane", "target": 15, "min_damage": 12, "max_damage": 28, "power_cost": 12},
+            {"name": "Wonster flood", "target": 7,  "min_damage": self.game.player.attack*2,  "max_damage": self.game.player.attack*6, "power_cost": 5},
+            {"name": "Wonster tsunami", "target": 11, "min_damage": self.game.player.attack*3, "max_damage": self.game.player.attack*9, "power_cost": 8},
+            {"name": "Wonster hurricane", "target": 15, "min_damage": self.game.player.attack*4, "max_damage": self.game.player.attack*12, "power_cost": 12},
         ]
 
         #call Battlemenu.py, a helper class to set up the basic layout of the battle (Standard-Attack, Power-Attacks, Items)
@@ -242,8 +242,8 @@ class BattleScreen:
             self.game.player.set_power(self.game.player.max_power)
             print("Max Power increased")
 
-        elif choice_index == 2:#increase attack by 2
-            self.game.player.attack += 2
+        elif choice_index == 2:#increase attack by 1
+            self.game.player.attack += 1
             print("Attack increased")
 
         #call the functions in player.py to set everything
@@ -446,10 +446,10 @@ class BattleScreen:
         self.state = "resolving"
 
         if missed:#if missed the damage is way lower, give a message to the player
-            damage = 2
+            damage = self.game.player.attack
             self.feedback_text = f"MISS! {damage} DMG"
         else:
-            damage = 10
+            damage = self.game.player.attack * 5
             self.feedback_text = f"PERFECT! {damage} DMG"
 
         self.feedback_timer = self.feedback_duration
