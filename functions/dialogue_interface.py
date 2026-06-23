@@ -98,7 +98,7 @@ class speech_box():
                 self.entity.kill()
                 if self.entity in game.entity_list:
                     game.entity_list.remove(self.entity)
-                self.trigger_black_screen(game, 0.3)#call function for black screen 
+                self.trigger_black_screen(game, 0.5)#call function for black screen 
                 self.kill()
                 break
 

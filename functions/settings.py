@@ -4,4 +4,4 @@ INGAME_HEIGHT = 216
 #are actually FullHD. That means the virtual screen should have a size that has a natural number as a factor for both 1536 x 864 and
 #1920 x 1080. 384 x 216 is the largest resolution that fulfills this (with a 5x scaling).
 
-SCREEN_TITLE = "ProjectOlex"
+SCREEN_TITLE = "Daddy's First Christmas"
