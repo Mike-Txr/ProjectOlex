@@ -38,3 +38,26 @@ The player character uses several attributes during gameplay, including:
 * **Attack** – Influences the damage dealt to enemies.
 
 Each level-up gives you the opportunity to increase one of these stats.
+
+## Installation
+
+### Requirements
+
+* Python 3.11 or newer
+* Library Arcade 3.3.3
+
+### Setup
+
+Clone the repository:
+
+
+
+Run the game:
+
+```bash
+python main.py
+```
+
+### Setup
+
+A complete control overview can be found in the in-game pause menu.
