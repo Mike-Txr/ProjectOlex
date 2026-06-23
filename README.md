@@ -43,14 +43,17 @@ Each level-up gives you the opportunity to increase one of these stats.
 
 ### Requirements
 
-* Python 3.11 or newer
+* Python 3.11.9 or newer
 * Library Arcade 3.3.3
 
 ### Setup
 
 Clone the repository:
 
-
+```bash
+git clone https://github.com/Mike-Txr/Daddys-First-Christmas.git
+cd Daddys-First-Christmas
+```
 
 Run the game:
 
@@ -58,6 +61,6 @@ Run the game:
 python main.py
 ```
 
-### Setup
+### Controls
 
 A complete control overview can be found in the in-game pause menu.
