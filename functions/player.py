@@ -10,6 +10,8 @@ import functions.entity as entity
 class Player(entity.Entity):
     def __init__(self, x, y, scale, game=None):
 
+        self.debug_variable = False#just for debug/presentation for the teacher
+
         self.facing = "south"
 
         super().__init__(x, y, scale, "player/"+self.facing+".png")
@@ -68,13 +70,16 @@ class Player(entity.Entity):
 
         self.level = 1#variable for the current level, starts at 1
         self.levelup = 100#variable, level up will be reached at 100
-        self.current_xp = 90#current experience points variable, starts with 50
+        self.current_xp = 0#current experience points variable
+
+        if self.debug_variable == True:
+            self.current_xp = 80
 
         self.coins = 10#variable for coins, could be changed throughout the game
 
         #"inventory" --> the current number
-        self.sausages = 5#variable for sausages, fills up hearts
-        self.pills = 5#variable for pills, fills up power
+        self.sausages = 0#variable for sausages, fills up hearts
+        self.pills = 0#variable for pills, fills up power
         self.sausage_heal_amount = 5#how much a sausage heals
         self.pill_power_amount = 10#how much a pill restores power
 

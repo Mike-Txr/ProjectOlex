@@ -1,7 +1,7 @@
 #main file for the whole fighting system, contains the battle logic
 
 #Battle is basically started by doing this:
-#enemy_data = {"max_hp": 50, "attack": 5, "red_time": 1.0, "xp_reward": 10, "coin_reward": 10, "image": "assets/NPC.png"}#########
+#enemy_data = {"max_hp": 50, "attack": 5, "red_time": 1.0, "xp_reward": 10, "coin_reward": 10, "texture": ""}#########
 #game.battle = True
 #game.battleview.start_battle(enemy_data)
 
@@ -48,7 +48,7 @@ class BattleScreen:
 
         #important variables for the battle logic
         self.state = "inactive" #variable to track the state of the battle screen
-        #can be: inactive, player_turn, player_timing_attack, enemy_turn, enemy_timing_block, resolving, power_spam, levelup, finished 
+        #can be: inactive, player_turn, player_timing_attack, enemy_turn, enemy_timing_block, resolving, power_spam, levelup, finished, victory_wait
         self.timer = 0.0#create a timer variable to track the time since the last state change
         self.turn_delay = 1.5#delay between turns in seconds
 
@@ -66,6 +66,10 @@ class BattleScreen:
         self.feedback_duration = 0.8
 
         self.levelup_pending = False
+
+        #timer for waiting after enemy died
+        self.victory_wait_time = 2.0
+        self.victory_wait_timer = 0.0
 
         #variables for the power spam mechanic
         self.power_spam_active = False
@@ -212,6 +216,7 @@ class BattleScreen:
 
         self.action_menu.disable()
         self.power_menu.disable()
+        self.items_menu.disable()
 
         #if level up change, let the player choose its stat to increase 
         if self.game.player.level > old_level:
@@ -221,6 +226,15 @@ class BattleScreen:
             self.levelup_menu.enable()
             return
 
+        #if win, there should be a small time, until the battle screen closes
+        if win:
+            self.state = "victory_wait"
+            self.victory_wait_timer = self.victory_wait_time
+            self.feedback_text = "YOU WON!"
+            self.feedback_timer = self.victory_wait_time
+            self.current_enemy_health = max(0, self.current_enemy_health)
+            return
+    
         self.state = "finished"
         self.current_enemy = None
         self.game.battle = False
@@ -499,6 +513,16 @@ class BattleScreen:
         if self.state in ("inactive", "finished"):#if inactive or finished, update nothing, just return
             return
 
+        #if vicotry, wait for the wait_timer to close the battle
+        if self.state == "victory_wait":
+            self.victory_wait_timer -= delta_time
+            if self.victory_wait_timer <= 0:
+                self.state = "finished"
+                self.current_enemy = None
+                self.game.battle = False
+                self.disable()
+            return
+    
         if self.feedback_timer > 0:#if feedback timer is greater than 0, decrease it by delta_time, and if it reaches 0, clear the feedback text
             self.feedback_timer -= delta_time
             if self.feedback_timer <= 0:

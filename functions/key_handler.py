@@ -63,10 +63,10 @@ def key_press(key, key_modifiers, game): #function to handle all key press event
 
         return 
     
-    if key == arcade.key.G:###############################only for debugging, will be removed later, triggers the game over screen when G is pressed
+    if key == arcade.key.G and game.player.debug_variable == True:#only for debugging, triggers the game over screen when G is pressed
         game.game_over = not game.game_over
         
-    if key == arcade.key.B:#################################only for debugging, will be removed later, triggers the battle view when B is pressed
+    if key == arcade.key.B and game.player.debug_variable == True:#only for debugging, triggers the battle view when B is pressed
         #enemy data will be part of a class later
         if not game.battle:
             enemy_data = {"max_hp": 50, "attack": 5, "red_time": 1.0, "xp_reward": 10, "coin_reward": 10, "texture": game.entity_list[0].texture}#########
