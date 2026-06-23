@@ -39,8 +39,11 @@ def counter_correct_player_pos(player, collision, scale, orig_coords):
     #this is used if the player tries to change screen, but isn't actually allowed to
     #currently this is only the case if there is an obstacle on the screen he's trying to change to
 
+    #move the player to the original coordinates
     player.center_x = orig_coords[0]
     player.center_y = orig_coords[1]
+
+    #move him back by one in-game pixel (1 * scale) so he doesn't immediately trigger the scene change again
     if collision.properties["side"] == "top":
         player.center_y -= scale
     elif collision.properties["side"] == "bottom":
