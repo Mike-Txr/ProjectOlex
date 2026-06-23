@@ -6,7 +6,7 @@ This school project serves as a **prototype** for a larger game concept, and man
 
 ## Story
 
-Insert Story when ready
+The protagonist, Darick Dadalus, works every day to afford medication for his sick father, Dario. After a long day at work, he sees an old man being beaten by gangsters. He helps him, and the old man —who is part of the mafia— offers to take him to his boss. The mafia leader, Granddaddy, offers Darick a place in his organization. And so it begins…
 
 ## Gameplay
 
